@@ -11,6 +11,7 @@ import type { StoreApi } from "zustand";
 import { loadDrillHoleData } from "../services/drill-hole-data-service";
 import { mapDrillHoleAggregateToStore } from "./section-mappers";
 import { SectionKey } from "../types/data-contracts";
+<<<<<<< HEAD
 
 function applyArraySection(state: any, key: string, mapped: any) {
 	if (!mapped || !state.sections[key]) return;
@@ -20,6 +21,8 @@ function applyArraySection(state: any, key: string, mapped: any) {
 	state.sections[key].rowVersions = mapped.versions || {};
 	state.sections[key].isDirty = false;
 }
+=======
+>>>>>>> main
 
 /**
  * Load drill hole data into store
@@ -200,7 +203,11 @@ export function unloadDrillHole(set: any): void {
 		modifiedAt: null,
 		activeTab: "Setup",
 		activeLens: {
+<<<<<<< HEAD
 			Setup: "Collar",
+=======
+			Setup: "RigSheet",
+>>>>>>> main
 			Geology: "Litho",
 			Geotech: "CoreRecoveryRun",
 			Sampling: "Sample",

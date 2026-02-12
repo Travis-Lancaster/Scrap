@@ -6,10 +6,11 @@
  * @module drill-hole-data/store
  */
 
-// import { saveRowData } from "../services/drill-hole-data-service";
-// import type { SectionKey } from "../types/data-contracts";
 import type { SectionKey } from "../types/data-contracts";
 import { createRowMetadata } from "./section-factory";
+// import { saveRowData } from "../services/drill-hole-data-service";
+// import type { SectionKey } from "../types/data-contracts";
+import { saveRowData } from "../services/drill-hole-data-service";
 
 /**
  * Add row to array section
