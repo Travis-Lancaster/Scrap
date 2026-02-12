@@ -10,6 +10,16 @@
 import type { StoreApi } from "zustand";
 import { loadDrillHoleData } from "../services/drill-hole-data-service";
 import { mapDrillHoleAggregateToStore } from "./section-mappers";
+import { SectionKey } from "../types/data-contracts";
+
+function applyArraySection(state: any, key: string, mapped: any) {
+	if (!mapped || !state.sections[key]) return;
+	state.sections[key].data = mapped.data || [];
+	state.sections[key].originalData = mapped.data || [];
+	state.sections[key].rowMetadata = mapped.metadata || {};
+	state.sections[key].rowVersions = mapped.versions || {};
+	state.sections[key].isDirty = false;
+}
 
 /**
  * Load drill hole data into store
@@ -114,28 +124,21 @@ export async function loadDrillHole(
 			}
 
 			// Update array sections
-			if (mappedSections.geologyCombinedLog) {
-				console.log(`[StoreLoaders] 📝 Setting geologyCombinedLog data:`, {
-					rowCount: mappedSections.geologyCombinedLog.data.length,
-					metadataCount: Object.keys(mappedSections.geologyCombinedLog.metadata).length,
-				});
-				state.sections.geologyCombinedLog.data = mappedSections.geologyCombinedLog.data;
-				state.sections.geologyCombinedLog.originalData = mappedSections.geologyCombinedLog.data;
-				state.sections.geologyCombinedLog.rowMetadata = mappedSections.geologyCombinedLog.metadata;
-				state.sections.geologyCombinedLog.rowVersions = mappedSections.geologyCombinedLog.versions;
-				state.sections.geologyCombinedLog.isDirty = false;
-			}
+			applyArraySection(state, "geologyCombinedLog", mappedSections.geologyCombinedLog);
+			applyArraySection(state, "shearLog", mappedSections.shearLog);
+			applyArraySection(state, "structureLog", mappedSections.structureLog);
+			applyArraySection(state, "allSamples", mappedSections.allSamples);
+			applyArraySection(state, "coreRecoveryRunLog", mappedSections.coreRecoveryRunLog);
+			applyArraySection(state, "fractureCountLog", mappedSections.fractureCountLog);
+			applyArraySection(state, "magSusLog", mappedSections.magSusLog);
+			applyArraySection(state, "rockMechanicLog", mappedSections.rockMechanicLog);
+			applyArraySection(state, "rockQualityDesignationLog", mappedSections.rockQualityDesignationLog);
+			applyArraySection(state, "specificGravityPtLog", mappedSections.specificGravityPtLog);
 
-			if (mappedSections.allSamples) {
-				console.log(`[StoreLoaders] 📝 Setting allSamples data:`, {
-					rowCount: mappedSections.allSamples.data.length,
-					metadataCount: Object.keys(mappedSections.allSamples.metadata).length,
-				});
-				state.sections.allSamples.data = mappedSections.allSamples.data;
-				state.sections.allSamples.originalData = mappedSections.allSamples.data;
-				state.sections.allSamples.rowMetadata = mappedSections.allSamples.metadata;
-				state.sections.allSamples.rowVersions = mappedSections.allSamples.versions;
-				state.sections.allSamples.isDirty = false;
+			if (mappedSections.dispatch) {
+				state.sections.dispatch.data = mappedSections.dispatch;
+				state.sections.dispatch.originalData = mappedSections.dispatch;
+				state.sections.dispatch.isDirty = false;
 			}
 
 			// Update core data
@@ -195,6 +198,22 @@ export function unloadDrillHole(set: any): void {
 		collarRowStatus: 0,
 		loadedAt: null,
 		modifiedAt: null,
+		activeTab: "Setup",
+		activeLens: {
+			Setup: "Collar",
+			Geology: "Litho",
+			Geotech: "CoreRecoveryRun",
+			Sampling: "Sample",
+		},
+		tabInitialized: {
+			Setup: true,
+			Geology: false,
+			Geotech: false,
+			Sampling: false,
+			QAQC: false,
+			SignOff: false,
+			Summary: false,
+		},
 	});
 
 	console.log(`[StoreLoaders] ✅ Store reset to initial state`);
@@ -219,4 +238,47 @@ export async function refreshDrillHole(set: any, get: any): Promise<void> {
 	console.log(`[StoreLoaders] 🔄 Refreshing drill hole:`, drillPlanId);
 
 	await loadDrillHole(set, get, drillPlanId, true); // forceRefresh = true
+}
+
+
+/**
+ * Refresh a single section while preserving unsaved state in other sections.
+ */
+export async function refreshSection(set: any, get: any, sectionKey: SectionKey): Promise<void> {
+	const drillPlanId = get().drillPlanId;
+
+	if (!drillPlanId) {
+		console.warn(`[StoreLoaders] ⚠️ Cannot refresh section - no drill plan loaded`, { sectionKey });
+		return;
+	}
+
+	console.log(`[StoreLoaders] 🔄 Refreshing section`, { sectionKey, drillPlanId });
+
+	const previousSections = get().sections;
+	const preservedBySection = Object.entries(previousSections).reduce((acc: any, [key, section]: [string, any]) => {
+		acc[key] = {
+			data: section.data,
+			originalData: section.originalData,
+			rowMetadata: section.rowMetadata,
+			rowVersions: section.rowVersions,
+			isDirty: section.isDirty,
+		};
+		return acc;
+	}, {});
+
+	await loadDrillHole(set, get, drillPlanId, true);
+
+	set((state: any) => {
+		Object.entries(preservedBySection).forEach(([key, preserved]: [string, any]) => {
+			if (key !== sectionKey) {
+				state.sections[key].data = preserved.data;
+				state.sections[key].originalData = preserved.originalData;
+				state.sections[key].rowMetadata = preserved.rowMetadata;
+				state.sections[key].rowVersions = preserved.rowVersions;
+				state.sections[key].isDirty = preserved.isDirty;
+			}
+		});
+	});
+
+	console.log(`[StoreLoaders] ✅ Section refresh complete`, { sectionKey });
 }

@@ -31,7 +31,6 @@ import { Form, Space, Spin } from "antd";
 // import { ActionBar } from '@/ux/features/collar-workspace/components';
 import { useFilteredMachinery, useRigSetupData, useRigSetupLookups } from "../hooks";
 
-import { ActionBar } from "#src/ux/components/ActionBar.js";
 // import { ActionBar } from "#src/ux/pages/drill-hole-data/components/ActionBar.js";
 import React from "react";
 import { RigSetupBusinessSchema } from "#src/data-layer/domain/extensions/rigsetup.business.js";
@@ -107,12 +106,7 @@ export const RigSetupFormView: React.FC<RigSetupFormViewProps> = ({ drillPlanId 
 	// ============================================
 	return (
 		<div style={{ padding: "24px" }}>
-			{/* Action Bar: Auto-manages Save/Submit/Review/Approve */}
-			<ActionBar
-				section={form.section}
-				actions={form.actions}
-				loading={false}
-			/>
+			{/* Actions are handled by the page-level drill-hole ActionBar (top-right of lens bar). */}
 
 			<Form layout="vertical">
 				<Space direction="vertical" size="large" style={{ width: "100%" }}>
