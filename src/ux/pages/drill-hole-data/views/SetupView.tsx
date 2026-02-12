@@ -11,6 +11,7 @@ import React, { useEffect } from "react";
 
 import { CollarCoordinateForm } from "../sections/forms/CollarCoordinateForm";
 import { RigSetupForm } from "../sections/forms";
+import { RigSetupFormView } from "../sections/forms/rig-setup";
 import { SectionFooter } from "../components/SectionFooter";
 import { SectionKey } from "../types/data-contracts";
 import { useDrillHoleDataStore } from "../store";
@@ -23,6 +24,8 @@ export const SetupView: React.FC = () => {
 
 	const activeLens = useDrillHoleDataStore(state => state.activeLens["Setup"]);
 		const currentLens = activeLens || "RigSheet";
+	const drillPlanId = useDrillHoleDataStore(state => state.drillPlanId);
+	const currentLens = activeLens || "RigSheet";
 
 	// Get current section key based on lens
 	const currentSectionKey = currentLens === "RigSheet"
@@ -66,6 +69,8 @@ export const SetupView: React.FC = () => {
 		<div className="flex flex-col h-full">
 			<div className="flex-1 overflow-auto p-6 bg-slate-50">
 				{currentLens === "RigSheet" && <RigSetupForm />}
+				{/* {currentLens === "RigSetup" && <RigSetupForm />} */}
+				{currentLens === "RigSheet" && <RigSetupFormView drillPlanId={drillPlanId || ""} />}
 
 				{currentLens === "Coordinate" && <CollarCoordinateForm />}
 			</div>
