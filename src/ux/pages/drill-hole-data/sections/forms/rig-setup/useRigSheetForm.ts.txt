@@ -1,0 +1,273 @@
+/**
+ * useRigSheetForm Hook
+ *
+ * Encapsulates all form logic for the RigSheet section following SRP.
+ * Handles form initialization, store synchronization, validation,
+ * and action handlers.
+ *
+ * Benefits:
+ * - Separation of concerns (business logic separated from presentation)
+ * - Testable in isolation
+ * - Reusable pattern consistent with other form-based sections
+ * - Simplified component (reduces complexity)
+ * 
+ * Follows the same pattern as useCollarForm.ts for consistency.
+ */
+
+import { useEffect, useRef, useCallback } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+import { useDrillHoleStore } from '../store/drillhole-store';
+import { rigSheetSchema, type RigSheetData } from '../validation/rigsheet-schemas';
+import { SectionKey } from '#src/types/drillhole';
+import type { UseRigSheetFormReturn, RigSheetFieldProps } from '../sections/types/rigsheet-types';
+import { useSectionActions } from './useSectionActions';
+
+/**
+ * Custom hook for RigSheet form management
+ *
+ * Manages the complete lifecycle of the RigSheet form including:
+ * - Form initialization with React Hook Form
+ * - Bidirectional synchronization with Zustand store
+ * - Dirty state tracking (form-level and section-level)
+ * - Validation orchestration
+ * - Save/Submit/Reject action handlers
+ *
+ * @returns Form control, validation state, and action handlers
+ *
+ * @example
+ * ```tsx
+ * const {
+ *   control,
+ *   isDirty,
+ *   errors,
+ *   onSave,
+ *   getFieldProps,
+ * } = useRigSheetForm();
+ * ```
+ */
+export function useRigSheetForm(): UseRigSheetFormReturn {
+  // ============================================================================
+  // Store Integration - Optimized selector pattern
+  // ============================================================================
+  
+  const section = useDrillHoleStore(state => state.sections.rigsheet);
+  const updateSectionData = useDrillHoleStore(state => state.updateSectionData);
+  const saveSection = useDrillHoleStore(state => state.saveSection);
+  const submitSection = useDrillHoleStore(state => state.submitSection);
+  const rejectSection = useDrillHoleStore(state => state.rejectSection);
+
+  const sectionData = section.data;
+
+  // ============================================================================
+  // Form Initialization
+  // ============================================================================
+
+  const {
+    control,
+    formState: { isDirty, dirtyFields },
+    reset,
+    getValues,
+    watch,
+  } = useForm<RigSheetData>({
+    defaultValues: sectionData,
+    mode: 'onChange',
+    resolver: zodResolver(rigSheetSchema),
+  });
+
+  // ============================================================================
+  // Lifecycle Management - 3 Clear Stages
+  // ============================================================================
+
+  // Flag to prevent updateSectionData during post-save reset
+  const isResettingAfterSaveRef = useRef(false);
+
+  // Stage 1: Initial Load
+  const initialLoadRef = useRef(true);
+
+  useEffect(() => {
+    if (initialLoadRef.current) {
+      console.log(`🔵 [RigSheetForm] Initial data load - resetting form:`, {
+        sectionDataKeys: Object.keys(sectionData).slice(0, 10),
+        formIsDirty: isDirty,
+        sectionIsDirty: section.isDirty,
+      });
+      initialLoadRef.current = false;
+      reset(sectionData);
+      console.log(`✅ [RigSheetForm] Form reset complete after initial load`);
+    }
+  }, [sectionData, reset, isDirty, section.isDirty]);
+
+  // Stage 2: Background Sync Reset
+  const previousIsDirtyRef = useRef(section.isDirty);
+  
+  useEffect(() => {
+    const wasDirty = previousIsDirtyRef.current;
+    const isNowClean = !section.isDirty;
+
+    // If section was dirty and is now clean (e.g., background sync), reset form
+    if (wasDirty && isNowClean && isDirty) {
+      console.log(`🔄 [RigSheetForm] Section synced - resetting form:`, {
+        formIsDirtyBefore: isDirty,
+        sectionIsDirtyBefore: wasDirty,
+        sectionIsDirtyAfter: section.isDirty,
+      });
+      reset(section.data);
+      console.log(`✅ [RigSheetForm] Form reset complete after sync`);
+    }
+
+    previousIsDirtyRef.current = section.isDirty;
+  }, [section.isDirty, section.data, isDirty, reset]);
+
+  // Stage 3: Form Changes → Store Sync
+  useEffect(() => {
+    const subscription = watch((formData, { name, type }) => {
+      // Skip store update if we're resetting after a successful save
+      if (isResettingAfterSaveRef.current) {
+        console.log(`✏️ [RigSheetForm] Skipping store update during post-save reset`);
+        return;
+      }
+
+      console.log(`✏️ [RigSheetForm] Field changed - syncing to store:`, {
+        changedField: name,
+        changeType: type,
+        formIsDirty: isDirty,
+        sectionIsDirtyBefore: section.isDirty,
+        dirtyFieldsCount: Object.keys(dirtyFields).length,
+      });
+
+      // Always update store on change - the store handles dirty state tracking
+      updateSectionData<RigSheetData>(SectionKey.RigSheet, formData as RigSheetData);
+
+      // Log after store update
+      setTimeout(() => {
+        console.log(`✏️ [RigSheetForm] After store update:`, {
+          changedField: name,
+          formIsDirty: isDirty,
+          sectionIsDirtyAfter: section.isDirty,
+          sectionHasUnsavedChanges: section.hasUnsavedChanges(),
+        });
+      }, 0);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [watch, updateSectionData, isDirty, dirtyFields, section]);
+
+  // ============================================================================
+  // Validation
+  // ============================================================================
+
+  const validation = section.validate();
+  const allErrors = 'database' in validation
+    ? [...validation.database.errors, ...validation.save.errors, ...validation.save.warnings]
+    : validation.errors || [];
+  const errorsByField = allErrors.reduce(
+    (acc: Record<string, string>, err: { field: string; message: string }) => {
+      acc[err.field] = err.message;
+      return acc;
+    },
+    {} as Record<string, string>
+  );
+
+  console.log('[RigSheetForm] Store validation errors:', errorsByField);
+
+  // ============================================================================
+  // Action Handlers
+  // ============================================================================
+
+  const onSave = useCallback(async () => {
+    console.log(`💾 [RigSheetForm] Save button clicked:`, {
+      formIsDirtyBefore: isDirty,
+      sectionIsDirtyBefore: section.isDirty,
+      dirtyFieldsCount: Object.keys(dirtyFields).length,
+      dirtyFieldNames: Object.keys(dirtyFields),
+    });
+
+    const data = getValues();
+    updateSectionData<RigSheetData>(SectionKey.RigSheet, data);
+    const result = await saveSection(SectionKey.RigSheet);
+
+    console.log(`💾 [RigSheetForm] Save completed:`, {
+      success: result.success,
+      formIsDirtyAfter: isDirty,
+      sectionIsDirtyAfter: section.isDirty,
+      sectionHasUnsavedChanges: section.hasUnsavedChanges(),
+      dirtyFieldsCountAfter: Object.keys(dirtyFields).length,
+      message: result.message,
+    });
+
+    // If save was successful and we're online, reset the form to clear form-level isDirty
+    if (result.success && navigator.onLine) {
+      console.log(`🔄 [RigSheetForm] Resetting form after successful save:`, {
+        formIsDirtyBeforeReset: isDirty,
+      });
+      // Set flag to prevent watch() from marking section dirty during reset
+      isResettingAfterSaveRef.current = true;
+      reset(section.data);
+      // Clear flag after reset completes
+      setTimeout(() => {
+        isResettingAfterSaveRef.current = false;
+        console.log(`✅ [RigSheetForm] Form reset after save complete`);
+      }, 0);
+    }
+  }, [isDirty, section, dirtyFields, getValues, updateSectionData, saveSection, reset]);
+
+  const onSubmit = useCallback(async () => {
+    const data = getValues();
+    updateSectionData<RigSheetData>(SectionKey.RigSheet, data);
+    await submitSection(SectionKey.RigSheet);
+  }, [getValues, updateSectionData, submitSection]);
+
+  const onReject = useCallback(async () => {
+    await rejectSection(SectionKey.RigSheet);
+  }, [rejectSection]);
+
+  // Get remaining actions (review, approve, exclude) from shared hook
+  const { onReview, onApprove, onExclude } = useSectionActions(SectionKey.RigSheet, {
+    beforeSave: async () => {
+      const data = getValues();
+      updateSectionData<RigSheetData>(SectionKey.RigSheet, data);
+    },
+  });
+
+  // ============================================================================
+  // Field Helpers
+  // ============================================================================
+
+  const getFieldProps = useCallback(
+  	(fieldName: keyof RigSheetData): RigSheetFieldProps => {
+  		const isFieldDirty = !!dirtyFields[fieldName];
+  		const hasError = !!errorsByField[fieldName];
+  		const isReadOnly = !section.isEditable();
+ 
+  		return {
+  			isDirty: isFieldDirty,
+  			validateStatus: hasError ? 'error' : undefined,
+  			readOnly: isReadOnly,
+  		};
+  	},
+  	[dirtyFields, errorsByField, section]
+  );
+
+  // ============================================================================
+  // Return Hook Interface
+  // ============================================================================
+
+  // Handle both ValidationResult and TwoTierValidationResult for isValid
+  const isValid = 'isValid' in validation ? validation.isValid : validation.database.isValid;
+  
+  return {
+    control,
+    isDirty,
+    errors: errorsByField,
+    isValid,
+    onSave,
+    onSubmit,
+    onReject,
+    onReview,
+    onApprove,
+    onExclude,
+    getFieldProps,
+  };
+}

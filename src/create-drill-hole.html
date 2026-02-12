@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Gemini Gold Explorer - UI Mock</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+	<style>
+		@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono&display=swap');
+
+		body {
+			font-family: 'Inter', sans-serif;
+			background-color: #f3f4f6;
+		}
+
+		.mono {
+			font-family: 'JetBrains Mono', monospace;
+		}
+
+		.drawer-transition {
+			transition: transform 0.3s ease-in-out;
+		}
+
+		.grid-row:hover {
+			background-color: #f0f7ff;
+			cursor: pointer;
+		}
+
+		.active-tab {
+			border-bottom: 3px solid #2563eb;
+			color: #2563eb;
+		}
+	</style>
+</head>
+
+<body class="h-screen overflow-hidden flex">
+
+
+
+	<main class="flex-1 flex flex-col h-full relative">
+
+		<header class="h-16 bg-white border-b flex items-center justify-between px-6 shadow-sm z-10">
+			<div class="flex items-center space-x-8">
+				<div>
+					<span class="text-[10px] uppercase font-bold text-slate-400 block">Current Project</span>
+					<span class="font-bold text-slate-700">Project K64 - Mali</span>
+				</div>
+				<div class="h-8 w-px bg-slate-200"></div>
+				<div>
+					<span class="text-[10px] uppercase font-bold text-slate-400 block">Plan</span>
+					<span class="font-bold text-slate-500">Plan Xyz</span>
+				</div>
+				<div class="h-8 w-px bg-slate-200"></div>
+				<div>
+					<span class="text-[10px] uppercase font-bold text-slate-400 block">Hole ID</span>
+					<span class="font-bold text-blue-600 text-lg">FKD_064(PlannedHoleNm)</span>
+				</div>
+				<div class="h-8 w-px bg-slate-200"></div>
+
+				<div>
+					<span class="text-[10px] uppercase font-bold text-slate-400 block">Status</span>
+					<span class="ftext-slate-400  itali text-lg">In Progress{Badge}</span>
+				</div>
+				<div class="h-8 w-px bg-slate-200"></div>
+
+				<div>
+					<span class="text-[10px] uppercase font-bold text-slate-400 block">Depth</span>
+					<span class="ftext-slate-400  itali text-lg">10.0m /170.0m</span>
+				</div>
+				<div class="h-8 w-px bg-slate-200"></div>
+
+
+				<div class="flex items-center space-x-2">
+					<span class="px-2 py-1 rounded bg--100 text-blue-700 text-xs font-bold">DRAFT{badge}</span>
+					<span class="text-slate-400 text-xs italic">Modified: 2 mins ago</span>
+				</div>
+			</div>
+
+			<div class="flex items-center space-x-4">
+				<div class="flex items-center space-x-2 text-orange-500">
+					<i class="fa-solid fa-circle-nodes animate-pulse"></i>
+					<span class="text-xs font-bold uppercase tracking-tighter">{DownLoadIcon}</span>
+					<!-- Option to PrintAll sheets, or create xlxs all sheets. -->
+				</div>
+				<div class="flex items-center space-x-2 text-orange-500">
+					<i class="fa-solid fa-circle-nodes animate-pulse"></i>
+					<span class="text-xs font-bold uppercase tracking-tighter">SyncCloud Icon</span>
+				</div>
+				<button
+					class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold text-sm transition shadow-md">
+					<i class="fa-solid fa-check-double mr-2"></i> Change Status
+					<!-- Changes Hole Status for Collar.
+					Pop up same Modal w/ reasons and tracking found in (src\pages\drill-plan\views\DrillPlanFormView.tsx) -->
+				</button>
+
+			</div>
+		</header>
+
+		<div class="bg-white border-b px-6 flex space-x-8 h-12 items-end">
+			<button class="pb-2 text-sm font-bold text-slate-400 hover:text-slate-600">Setup</button>
+			<!-- 			RigSetup  -->
+			<!-- 			CollarCoordinate - () -->
+			<!-- 			Survey -< SurveyLog[] - () -->
+
+			<button class="pb-2 text-sm font-bold active-tab">Geology Log</button>
+			<!-- Create lens views & Drawer Editer for all -->
+			<button class="pb-2 text-sm font-bold text-slate-400 hover:text-slate-600">Geotech</button>
+			<!--
+lens views for :
+CoreRecoveryRun[]
+FractureCount[]
+MagSus[]
+RockMechanic[]
+RockQualityDesignation[]
+SpecificGravity[]
+Structure[]
+-Create all sections
+-->
+
+			<button class="pb-2 text-sm font-bold text-slate-400 hover:text-slate-600">Sampling</button>
+			<!-- Samples: <-Keep Key fields + Drawer Editer.
+			 		 Dispatch:
+					 LabResults:<-Import Lab Results and adds to dexie & API.
+					 CycloneCleaning[]
+			 -->
+			<button class="pb-2 text-sm font-bold text-slate-400 hover:text-slate-600">QAQC</button>
+			<!--
+
+			 -->
+			<button class="pb-2 text-sm font-bold text-slate-400 hover:text-slate-600">SignOff</button>
+			<!-- Collar -   -->
+			<button class="pb-2 text-sm font-bold text-slate-400 hover:text-slate-600">Summary</button>
+			<!-- Create a nice summary page of important information -->
+		</div>
+		<!--
+
+
+
+ -->
+
+		<div class="bg-slate-50 p-3 flex justify-between items-center px-6 border-b">
+			<div class="flex items-center space-x-2">
+				<div class="w-px h-6 bg-slate-300 mx-2"></div>
+				<span class="text-[10px] uppercase font-bold text-slate-500 mr-2">View Lens:</span>
+				<div class="inline-flex rounded-md shadow-sm">
+					<button
+						class="px-3 py-1 text-xs font-bold bg-white border border-slate-300 rounded-l-md text-blue-600">Litho</button>
+					<button
+						class="px-3 py-1 text-xs font-bold bg-white border-t border-b border-r border-slate-300 text-slate-500">Alteration</button>
+					<button
+						class="px-3 py-1 text-xs font-bold bg-white border-t border-b border-r border-slate-300 text-slate-500">Veins</button>
+					<button
+						class="px-3 py-1 text-xs font-bold bg-white border-t border-b border-r border-slate-300 rounded-r-md text-slate-500">Everything</button>
+				</div>
+				<div class="w-px h-6 bg-slate-300 mx-2"></div>
+				<span class="text-[10px] uppercase font-bold text-slate-500 mr-2">Other Logs:</span>
+				<div class="inline-flex rounded-md shadow-sm">
+					<button
+						class="px-3 py-1 text-xs font-bold bg-white border border-slate-300 rounded-l-md text-blue-600">Shear</button>
+
+					<button
+						class="px-3 py-1 text-xs font-bold bg-white border-t border-b border-r border-slate-300 rounded-r-md text-slate-500">Structure</button>
+				</div>
+				<div class="w-px h-6 bg-slate-300 mx-2"></div>
+			</div>
+			<div class="text-slate-400 hover:text-slate-600 cursor-pointer">
+				<button class="bg-white border px-3 py-1.5 rounded text-xs font-bold shadow-sm hover:bg-slate-50">+ Add
+					Interval</button>
+				<!-- Adds new Row to Grid -->
+				<button class="bg-white border px-3 py-1.5 rounded text-xs font-bold shadow-sm hover:bg-slate-50">New
+					Log</button>
+				<!-- All current Rows are Soft Deleted and a new log is started w/ one row.
+					Display Modal Dialog, asking for reason..goes into LoggingEvent table.
+					If this is the 1st time (No records to display) then populate reason and type as 'Initial Logging'
+					[Lookup].[LoggingEventType] has avail types.
+					If its replacing an existing log then default to 'Relogging'
+
+					-->
+				<span class="text-xs font-bold">Import
+					<!-- Should be Icons, Imports Section -->
+				</span>
+				<span class="text-xs font-bold">export
+					<!-- Icon? dropdown option Pdf/xls,html,cvs,json exports section. --></span> <span
+					class="text-xs font-bold">Print</span>
+			</div>
+		</div>
+
+		<div class="overflow-auto bg-white   ">
+			<table class="w-full text-left border-collapse min-w-[1200px]">
+				<!-- Make AgGridReact Make Large and Easy to Load/ Paging -->
+				<!-- invalid rows (cells if possible should be red) -->
+				<!-- No Sort, Always sorted by DepthFrom or Depth -->
+				<!-- When everything then  w/ adv filtering and -->
+				<thead class="bg-slate-50 sticky top-0 border-b text-slate-600 text-[11px] uppercase tracking-wider font-bold">
+					<tr>
+						<th class="px-4 py-3 border-r w-20">Action</th>
+						<th class="px-4 py-3 border-r w-24 bg-slate-100">From (m)</th>
+						<th class="px-4 py-3 border-r w-24 bg-slate-100 text-blue-600">To (m)</th>
+						<th class="px-4 py-3 border-r w-32">Lithology</th>
+						<th class="px-4 py-3 border-r">Colour</th>
+						<th class="px-4 py-3 border-r">Weathering</th>
+						<th class="px-4 py-3 border-r">Grain Size</th>
+						<th class="px-4 py-3">Structure</th>
+						<th class="px-4 py-3 w-12 text-center text-slate-300"><i class="fa-solid fa-ellipsis-vertical"></i></th>
+					</tr>
+				</thead>
+				<tbody class="text-sm text-slate-700 mono">
+					<tr class="grid-row border-b group" onclick="toggleDrawer()">
+						<td class="px-4 py-3 border-r"><span
+								class="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded font-bold">[]
+								<!-- Should be Delete icon/ with confirmation -->
+							</span></td>
+						<td class="px-4 py-3 border-r">0.00</td>
+						<td class="px-4 py-3 border-r font-bold">22.40</td>
+						<td class="px-4 py-3 border-r">OVERBURDEN</td>
+						<td class="px-4 py-3 border-r">ORANGE/RED</td>
+						<td class="px-4 py-3 border-r text-slate-400">OXIDIZED</td>
+						<td class="px-4 py-3 border-r text-slate-400">FINE</td>
+						<td class="px-4 py-3">MASSIVE</td>
+						<td class="text-center text-slate-300 group-hover:text-blue-500"><i class="fa-solid fa-chevron-right"></i>
+						</td>
+					</tr>
+					<tr class="grid-row border-b group bg-blue-50/30" onclick="toggleDrawer()">
+						<td class="px-4 py-3 border-r"><span
+								class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded font-bold italic">[]
+								X</span></td>
+						<td class="px-4 py-3 border-r">22.40</td>
+						<td class="px-4 py-3 border-r font-bold">45.80</td>
+						<td class="px-4 py-3 border-r">BASALT</td>
+						<td class="px-4 py-3 border-r font-bold">DK GREY</td>
+						<td class="px-4 py-3 border-r">MODERATE</td>
+						<td class="px-4 py-3 border-r">MED</td>
+						<td class="px-4 py-3">SHEARED</td>
+						<td class="text-center text-slate-300 group-hover:text-blue-500"><i class="fa-solid fa-chevron-right"></i>
+						</td>
+					</tr>
+					<tr class="grid-row border-b group bg-red-50" onclick="toggleDrawer()">
+						<td class="px-4 py-3 border-r"><span
+								class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded font-bold">[] X</span></td>
+						<td class="px-4 py-3 border-r">45.80</td>
+						<td class="px-4 py-3 border-r font-bold text-red-600">42.00</td>
+						<td class="px-4 py-3 border-r">QUARTZ VEIN</td>
+						<td class="px-4 py-3 border-r">WHITE</td>
+						<td class="px-4 py-3 border-r">FRESH</td>
+						<td class="px-4 py-3 border-r">COARSE</td>
+						<td class="px-4 py-3">BRECCIATED</td>
+						<td class="text-center text-slate-300 group-hover:text-blue-500"><i class="fa-solid fa-chevron-right"></i>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<div class="bg-slate-50 p-3 flex justify-between items-center px-6 border-b">
+			<div class="flex items-center space-x-2">
+				<div class="w-px h-6 bg-slate-300 mx-2"></div>
+
+				<div class="w-px h-6 bg-slate-300 mx-2"></div>
+			</div>
+			<div class="text-slate-400 hover:text-slate-600 cursor-pointer">
+				<button
+					class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold text-sm transition shadow-md">
+					Save|Submit|Reviewed
+					<!-- Applies to section/all rows in section -->
+					<!-- Save to local & API - Make Not Dirty,Validates  {only visisble if RowStatus=0 & isDirty }-->
+					<!-- Submit to local & API - Make RowStatus=1,Validates {only visisble if RowStatus=0 & Not isDirty }-->
+					<!-- Reviewed to local & API - Make RowStatus=0,Validates {only visisble if RowStatus=1 & Not isDirty }-->
+					<!-- Grid|Form is ReadOnly if RowStatus <> 0 Draft  }-->
+					<!-- Notes on Validation - Always perform schema.database.validation and show dialog if fails, these must be fixed.
+					if schema.database.validation passes then do schema.buinsess.validation. validationStatus = error.success,
+					validationErrors= error.issues (make sure null if sucess).
+					Non-Blocking, still Save. highlight invalid form/grid. -->
+				</button>
+			</div>
+		</div>
+
+		<aside id="inspector"
+			class="fixed right-0 top-0 h-full w-[450px] bg-white shadow-2xl z-50 transform translate-x-full drawer-transition border-l">
+			<div class="h-full flex flex-col">
+				<div class="p-4 border-b bg-slate-50 flex items-center justify-between">
+					<div>
+						<h2 class="font-bold text-slate-800">Interval Details</h2>
+						<span class="text-xs text-slate-500 mono">Depth: 22.40m - 45.80m</span>
+					</div>
+					<button onclick="toggleDrawer()" class="text-slate-400 hover:text-slate-700 text-xl px-2">
+						<i class="fa-solid fa-xmark"></i>
+					</button>
+				</div>
+
+				<div class="flex-grow overflow-y-auto p-6 space-y-6">
+
+					<section>
+						<h3 class="text-[10px] font-bold text-blue-600 uppercase border-b mb-4 pb-1">Lithology & Basics
+						</h3>
+						<div class="space-y-4">
+							<div>
+								<label class="block text-xs font-bold text-slate-600 mb-1">Primary Lithology</label>
+								<select class="w-full border rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+									<option>BASALT</option>
+									<option>QUARTZ VEIN</option>
+									<option>GRANITE</option>
+								</select>
+							</div>
+							<div class="grid grid-cols-2 gap-4">
+								<div>
+									<label class="block text-xs font-bold text-slate-600 mb-1">Colour</label>
+									<input type="text" value="DK GREY" class="w-full border rounded-md p-2 text-sm outline-none">
+								</div>
+								<div>
+									<label class="block text-xs font-bold text-slate-600 mb-1">Weathering</label>
+									<select class="w-full border rounded-md p-2 text-sm outline-none">
+										<option>MODERATE</option>
+										<option>FRESH</option>
+									</select>
+								</div>
+							</div>
+						</div>
+					</section>
+
+					<section>
+						<h3 class="text-[10px] font-bold text-blue-600 uppercase border-b mb-4 pb-1">Alteration
+							(Intensity 0-5)</h3>
+						<div class="grid grid-cols-2 gap-x-6 gap-y-3 bg-slate-50 p-3 rounded-lg border">
+							<div class="flex justify-between items-center">
+								<label class="text-xs font-semibold text-slate-600">Albite</label>
+								<input type="number" value="2" class="w-12 border rounded p-1 text-center text-sm font-bold">
+							</div>
+							<div class="flex justify-between items-center">
+								<label class="text-xs font-semibold text-slate-600">Biotite</label>
+								<input type="number" value="0" class="w-12 border rounded p-1 text-center text-sm font-bold">
+							</div>
+							<div class="flex justify-between items-center">
+								<label class="text-xs font-semibold text-slate-600">Sericite</label>
+								<input type="number" value="4" class="w-12 border rounded p-1 text-center text-sm font-bold">
+							</div>
+							<div class="flex justify-between items-center">
+								<label class="text-xs font-semibold text-slate-600">Silica</label>
+								<input type="number" value="1" class="w-12 border rounded p-1 text-center text-sm font-bold">
+							</div>
+						</div>
+					</section>
+
+					<section>
+						<h3 class="text-[10px] font-bold text-blue-600 uppercase border-b mb-4 pb-1">Veining / Min</h3>
+						<div class="space-y-3">
+							<div class="flex items-center space-x-4">
+								<div class="flex-1">
+									<label class="block text-[10px] font-bold text-slate-500">Vein Mode</label>
+									<input type="text" class="w-full border rounded p-2 text-sm">
+								</div>
+								<div class="w-20">
+									<label class="block text-[10px] font-bold text-slate-500">Vein %</label>
+									<input type="number" value="15" class="w-full border rounded p-2 text-sm">
+								</div>
+							</div>
+							<div>
+								<label class="block text-[10px] font-bold text-slate-500">Comments</label>
+								<textarea class="w-full border rounded p-2 text-sm h-20"
+									placeholder="Describe interval notes..."></textarea>
+							</div>
+						</div>
+					</section>
+
+				</div>
+
+				<div class="p-4 bg-slate-50 border-t flex space-x-3">
+					<button onclick="toggleDrawer()"
+						class="flex-1 bg-white border border-slate-300 py-2 rounded-lg font-bold text-slate-600 hover:bg-slate-100 transition shadow-sm">Cancel</button>
+					<button onclick="toggleDrawer()"
+						class="flex-1 bg-blue-600 py-2 rounded-lg font-bold text-white hover:bg-blue-700 transition shadow-sm">Save
+						Changes</button>
+				</div>
+			</div>
+		</aside>
+
+
+	</main>
+
+	<script>
+		let isOpen = false;
+		function toggleDrawer() {
+			const drawer = document.getElementById('inspector');
+			isOpen = !isOpen;
+			if (isOpen) {
+				drawer.classList.remove('translate-x-full');
+			} else {
+				drawer.classList.add('translate-x-full');
+			}
+		}
+	</script>
+</body>
+<!--
+There are alot of identical sections
+(2) Form Entry, rest are gids.
+Create reuseable code. -->
+
+
+</html>
