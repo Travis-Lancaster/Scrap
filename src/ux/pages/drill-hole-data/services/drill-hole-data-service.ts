@@ -570,55 +570,61 @@ export async function saveSectionData(
 	console.log(`💾 [DrillHoleData Service] Saving section:`, {
 		drillPlanId,
 		sectionKey,
-		dataKeys: Object.keys(data),
+		isArray: Array.isArray(data),
 		timestamp: new Date().toISOString(),
 	});
 
 	try {
-		// Import dbService to save to database
-		const dataLayer = await import("#src/data-layer/services/dbService.js");
-		
-		// Save based on section type
+		const dataLayer = (await import("#src/data-layer/services/dbService.js")).default;
+
+		const saveSingle = async (row: any, idField: string, createMethod: string, updateMethod: string) => {
+			const id = row?.[idField];
+			if (id && (dataLayer as any)[updateMethod]) {
+				return await (dataLayer as any)[updateMethod](id, row);
+			}
+			if ((dataLayer as any)[createMethod]) {
+				return await (dataLayer as any)[createMethod](row);
+			}
+			return row;
+		};
+
 		if (sectionKey === SectionKey.RigSetup) {
-			console.log(`💾 [DrillHoleData Service] Saving RigSetup to database...`);
-			const rigSetupId = data.RigSetupId;
-			if (!rigSetupId) {
-				throw new Error("RigSetupId is required to save RigSetup");
-			}
-			// Use update if record exists, otherwise create
-			await dataLayer.default.rigSetupControllerUpdate(rigSetupId, data);
-			console.log(`✅ [DrillHoleData Service] RigSetup saved to database`);
-		} else if (sectionKey === SectionKey.CollarCoordinate) {
-			console.log(`💾 [DrillHoleData Service] Saving CollarCoordinate to database...`);
-			const collarCoordinateId = data.CollarCoordinateId;
-			if (!collarCoordinateId) {
-				throw new Error("CollarCoordinateId is required to save CollarCoordinate");
-			}
-			// Use update if record exists, otherwise create
-			await dataLayer.default.collarCoordinateControllerUpdate(collarCoordinateId, data);
-			console.log(`✅ [DrillHoleData Service] CollarCoordinate saved to database`);
-		} else {
-			console.warn(`⚠️ [DrillHoleData Service] No save handler for section: ${sectionKey}`);
+			const saved = await saveSingle(data, "RigSetupId", "rigSetupControllerCreate", "rigSetupControllerUpdate");
+			return { success: true, message: "Saved successfully", data: saved };
+		}
+		if (sectionKey === SectionKey.CollarCoordinate) {
+			const saved = await saveSingle(data, "CollarCoordinateId", "collarCoordinateControllerCreate", "collarCoordinateControllerUpdate");
+			return { success: true, message: "Saved successfully", data: saved };
+		}
+		if (sectionKey === SectionKey.Dispatch) {
+			const saved = await saveSingle(data, "LabDispatchId", "labDispatchControllerCreate", "labDispatchControllerUpdate");
+			return { success: true, message: "Saved successfully", data: saved };
 		}
 
-		console.log(`✅ [DrillHoleData Service] Section saved:`, {
-			drillPlanId,
-			sectionKey,
-			timestamp: new Date().toISOString(),
-		});
-
-		return {
-			success: true,
-			message: "Saved successfully",
+		const arrayConfig: Record<string, { idField: string; createMethod: string; updateMethod: string }> = {
+			[SectionKey.GeologyCombinedLog]: { idField: "GeologyCombinedLogId", createMethod: "geologyCombinedLogControllerCreate", updateMethod: "geologyCombinedLogControllerUpdate" },
+			[SectionKey.ShearLog]: { idField: "ShearLogId", createMethod: "shearLogControllerCreate", updateMethod: "shearLogControllerUpdate" },
+			[SectionKey.StructureLog]: { idField: "StructureLogId", createMethod: "structureLogControllerCreate", updateMethod: "structureLogControllerUpdate" },
+			[SectionKey.CoreRecoveryRunLog]: { idField: "CoreRecoveryRunLogId", createMethod: "coreRecoveryRunLogControllerCreate", updateMethod: "coreRecoveryRunLogControllerUpdate" },
+			[SectionKey.FractureCountLog]: { idField: "FractureCountLogId", createMethod: "fractureCountLogControllerCreate", updateMethod: "fractureCountLogControllerUpdate" },
+			[SectionKey.MagSusLog]: { idField: "MagSusLogId", createMethod: "magSusLogControllerCreate", updateMethod: "magSusLogControllerUpdate" },
+			[SectionKey.RockMechanicLog]: { idField: "RockMechanicLogId", createMethod: "rockMechanicLogControllerCreate", updateMethod: "rockMechanicLogControllerUpdate" },
+			[SectionKey.RockQualityDesignationLog]: { idField: "RockQualityDesignationLogId", createMethod: "rockQualityDesignationLogControllerCreate", updateMethod: "rockQualityDesignationLogControllerUpdate" },
+			[SectionKey.SpecificGravityPtLog]: { idField: "SpecificGravityPtLogId", createMethod: "specificGravityPtLogControllerCreate", updateMethod: "specificGravityPtLogControllerUpdate" },
+			[SectionKey.AllSamples]: { idField: "SampleId", createMethod: "allSamplesControllerCreate", updateMethod: "allSamplesControllerUpdate" },
 		};
-	} catch (error) {
-		console.error(`❌ [DrillHoleData Service] Failed to save section:`, {
-			drillPlanId,
-			sectionKey,
-			error,
-			timestamp: new Date().toISOString(),
-		});
 
+		const config = arrayConfig[sectionKey];
+		if (config) {
+			const rows = Array.isArray(data) ? data : [];
+			const savedRows = await Promise.all(rows.map((row: any) => saveSingle(row, config.idField, config.createMethod, config.updateMethod)));
+			return { success: true, message: `Saved ${savedRows.length} rows`, data: savedRows };
+		}
+
+		console.warn(`⚠️ [DrillHoleData Service] No save handler for section: ${sectionKey}`);
+		return { success: true, message: "No save handler configured", data };
+	} catch (error) {
+		console.error(`❌ [DrillHoleData Service] Failed to save section:`, { drillPlanId, sectionKey, error });
 		return {
 			success: false,
 			message: error instanceof Error ? error.message : "Save failed",
