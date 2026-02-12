@@ -19,6 +19,7 @@ import * as StoreLoaders from "./store-loaders";
 import * as StoreRowOps from "./store-row-operations";
 
 import { ActionResult, SectionKey, TabKey, VwCollar, VwDrillPlan } from "../types/data-contracts";
+import { TAB_DEFAULT_LENS } from "../utils/navigation";
 
 import { create } from "zustand";
 import { createAllSections } from "./section-factory";
@@ -72,6 +73,7 @@ export interface DrillHoleDataState {
 	 * Example: { "Geology": "Litho", "Setup": "RigSetup" }
 	 */
 	activeLens: Record<string, string>;
+	tabInitialized: Record<TabKey, boolean>;
 
 	/**
 	 * Drawer state
@@ -92,6 +94,7 @@ export interface DrillHoleDataState {
 
 	setActiveTab: (tab: TabKey) => void;
 	setActiveLens: (tab: string, lens: string) => void;
+	markTabInitialized: (tab: TabKey) => void;
 
 	// ========================================================================
 	// Actions - Drawer
@@ -175,10 +178,19 @@ export const useDrillHoleDataStore = create<DrillHoleDataState>()(
 
 			activeTab: "Setup",
 			activeLens: {
-				"Setup": "RigSetup",
-				"Geology": "Litho",
-				"Geotech": "CoreRecoveryRun",
-				"Sampling": "Sample",
+				"Setup": TAB_DEFAULT_LENS.Setup || "RigSheet",
+				"Geology": TAB_DEFAULT_LENS.Geology || "Litho",
+				"Geotech": TAB_DEFAULT_LENS.Geotech || "CoreRecoveryRun",
+				"Sampling": TAB_DEFAULT_LENS.Sampling || "Sample",
+			},
+			tabInitialized: {
+				Setup: true,
+				Geology: false,
+				Geotech: false,
+				Sampling: false,
+				QAQC: false,
+				SignOff: false,
+				Summary: false,
 			},
 
 			isDrawerOpen: false,
@@ -201,6 +213,10 @@ export const useDrillHoleDataStore = create<DrillHoleDataState>()(
 
 				set((state) => {
 					state.activeTab = tab;
+					if (!state.tabInitialized[tab]) {
+						console.log("[Store] 🚀 Initializing tab for first time", { tab });
+						state.tabInitialized[tab] = true;
+					}
 				});
 			},
 
@@ -214,6 +230,15 @@ export const useDrillHoleDataStore = create<DrillHoleDataState>()(
 
 				set((state) => {
 					state.activeLens[tab] = lens;
+				});
+			},
+
+			markTabInitialized: (tab: TabKey) => {
+				set((state) => {
+					if (!state.tabInitialized[tab]) {
+						console.log("[Store] ✅ Tab marked initialized", { tab, timestamp: new Date().toISOString() });
+						state.tabInitialized[tab] = true;
+					}
 				});
 			},
 

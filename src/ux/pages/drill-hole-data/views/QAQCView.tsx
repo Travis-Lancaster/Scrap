@@ -7,20 +7,32 @@
  */
 
 import React from "react";
-import { Card } from "antd";
+import { QAQCReportsGrid } from "../sections/grids";
+import { SectionFooter } from "../components/SectionFooter";
+import { useSectionActions } from "../hooks";
+import { useDrillHoleDataStore } from "../store";
+import { SectionKey } from "../types/data-contracts";
 
 export const QAQCView: React.FC = () => {
-	console.log("[QAQCView] 📊 Rendering QAQC view");
+	const section = useDrillHoleDataStore(state => state.sections[SectionKey.QAQC]);
+	const { onSave, onSubmit } = useSectionActions(SectionKey.QAQC);
+
+	console.log("[QAQCView] 📊 Rendering QAQC view", {
+		isDirty: section?.isDirty,
+		rowCount: section?.data?.length || 0,
+	});
 
 	return (
-		<div className="p-6">
-			<Card title="QAQC Reports">
-				<div className="text-center text-gray-500 py-12">
-					<div className="text-4xl mb-4">📋</div>
-					<div className="text-lg font-semibold">QAQC Reports</div>
-					<div className="text-sm">Ready for component copy from create-drill-hole/sections/QaqcSection.tsx</div>
-				</div>
-			</Card>
+		<div className="flex flex-col h-full">
+			<div className="flex-1 overflow-hidden bg-white">
+				<QAQCReportsGrid />
+			</div>
+			<SectionFooter
+				rowStatus={section?.data?.[0]?.RowStatus || 0}
+				isDirty={section?.isDirty || false}
+				onSave={onSave}
+				onSubmit={onSubmit}
+			/>
 		</div>
 	);
 };

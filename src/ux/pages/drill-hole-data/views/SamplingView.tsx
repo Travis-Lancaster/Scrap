@@ -10,19 +10,15 @@
 import React from "react";
 import { useDrillHoleDataStore } from "../store";
 import { SectionKey } from "../types/data-contracts";
-import { AllSamplesGrid } from "../sections/grids/AllSamplesGrid";
+import { AllSamplesGrid, LabResultsGrid } from "../sections/grids";
 import { SectionFooter } from "../components/SectionFooter";
 import { useSectionActions } from "../hooks";
+import { DispatchForm } from "../sections/forms/DispatchForm";
 
 export const SamplingView: React.FC = () => {
-	// ========================================================================
-	// Store Selectors
-	// ========================================================================
-
 	const activeLens = useDrillHoleDataStore(state => state.activeLens["Sampling"]);
 	const currentLens = activeLens || "Sample";
 
-	// Map lens to section key
 	const currentSectionKey = 
 		currentLens === "Sample" ? SectionKey.AllSamples :
 		currentLens === "Dispatch" ? SectionKey.Dispatch :
@@ -34,53 +30,31 @@ export const SamplingView: React.FC = () => {
 		currentLens,
 		sectionKey: currentSectionKey,
 		isDirty: section?.isDirty,
+		timestamp: new Date().toISOString(),
 	});
 
-	// ========================================================================
-	// Section Actions
-	// ========================================================================
-
 	const { onSave, onSubmit } = useSectionActions(currentSectionKey);
-
-	// ========================================================================
-	// Render Content Based on Lens
-	// ========================================================================
 
 	const renderContent = () => {
 		switch (currentLens) {
 			case "Sample":
 				return <AllSamplesGrid />;
 			case "Dispatch":
-				return (
-					<div className="p-6 text-center text-gray-500">
-						Dispatch section - Ready for component copy from create-drill-hole
-					</div>
-				);
+				return <DispatchForm />;
 			case "LabResults":
-				return (
-					<div className="p-6 text-center text-gray-500">
-						Lab Results Importer - Ready for component copy from visual-mapper/TemplateLibrary
-					</div>
-				);
+				return <LabResultsGrid />;
 			default:
 				return <AllSamplesGrid />;
 		}
 	};
 
-	// ========================================================================
-	// Render
-	// ========================================================================
-
 	return (
 		<div className="flex flex-col h-full">
-			<div className="flex-1 overflow-hidden bg-white">
-				{renderContent()}
-			</div>
+			<div className="flex-1 overflow-hidden bg-white">{renderContent()}</div>
 
-			{/* Section Footer with integrated actions */}
 			{currentLens !== "LabResults" && (
 				<SectionFooter
-					rowStatus={section?.data?.[0]?.RowStatus || 0}
+					rowStatus={section?.data?.[0]?.RowStatus || section?.data?.RowStatus || 0}
 					isDirty={section?.isDirty || false}
 					onSave={onSave}
 					onSubmit={onSubmit}

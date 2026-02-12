@@ -195,6 +195,22 @@ export function unloadDrillHole(set: any): void {
 		collarRowStatus: 0,
 		loadedAt: null,
 		modifiedAt: null,
+		activeTab: "Setup",
+		activeLens: {
+			Setup: "RigSheet",
+			Geology: "Litho",
+			Geotech: "CoreRecoveryRun",
+			Sampling: "Sample",
+		},
+		tabInitialized: {
+			Setup: true,
+			Geology: false,
+			Geotech: false,
+			Sampling: false,
+			QAQC: false,
+			SignOff: false,
+			Summary: false,
+		},
 	});
 
 	console.log(`[StoreLoaders] ✅ Store reset to initial state`);
