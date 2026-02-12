@@ -8,6 +8,7 @@
  */
 
 import { useCallback, useMemo } from "react";
+import { useGridUIContext } from "./useGridUIContext";
 import { message, Modal } from "antd";
 import { useDrillHoleDataStore } from "../store";
 import type { SectionKey } from "../types/data-contracts";
@@ -30,7 +31,7 @@ import type { SectionKey } from "../types/data-contracts";
  *   handleDeleteRow,
  * } = useGeotechGridOperations(SectionKey.CoreRecoveryRunLog, "CoreRecoveryRunLogId");
  */
-export function useGeotechGridOperations(sectionKey: SectionKey, idField: string) {
+export function useGeotechGridOperations(sectionKey: SectionKey, idField: string, lens: string = "") {
 	console.log(`[useGeotechGridOperations] 🎣 Hook initialized for:`, sectionKey);
 
 	// ========================================================================
@@ -44,6 +45,7 @@ export function useGeotechGridOperations(sectionKey: SectionKey, idField: string
 	const saveSection = useDrillHoleDataStore(state => state.saveSection);
 	const canEdit = useDrillHoleDataStore(state => state.canEdit(sectionKey));
 	const openDrawer = useDrillHoleDataStore(state => state.openDrawer);
+	const { uiState, updateUIState } = useGridUIContext("Geotech", lens);
 
 	// ========================================================================
 	// Grid Data
@@ -201,5 +203,9 @@ export function useGeotechGridOperations(sectionKey: SectionKey, idField: string
 		// Validation
 		validateRow: section.validateRow,
 		validateAll: section.validateAll,
+
+		// Persisted UI context state
+		uiState,
+		updateUIState,
 	};
 }

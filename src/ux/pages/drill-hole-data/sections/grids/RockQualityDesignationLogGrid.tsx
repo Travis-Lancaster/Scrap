@@ -20,7 +20,9 @@ export const RockQualityDesignationLogGrid: React.FC = () => {
 		rowMetadata,
 		handleCellValueChanged,
 		handleEditRow,
-	} = useGeotechGridOperations(SectionKey.RockQualityDesignationLog, "RockQualityDesignationLogId");
+		uiState,
+		updateUIState,
+	} = useGeotechGridOperations(SectionKey.RockQualityDesignationLog, "RockQualityDesignationLogId", "RockQualityDesignation");
 
 	console.log("[RockQualityDesignationLogGrid] 📊 Rendering grid", {
 		rowCount: rows.length,
@@ -48,6 +50,9 @@ export const RockQualityDesignationLogGrid: React.FC = () => {
 				sortColumn="DepthFrom"
 				readOnly={isReadOnly}
 				getRowClass={getRowClass}
+				rowIdField="RockQualityDesignationLogId"
+				uiState={uiState}
+				onUIStateChange={updateUIState}
 			/>
 		</div>
 	);

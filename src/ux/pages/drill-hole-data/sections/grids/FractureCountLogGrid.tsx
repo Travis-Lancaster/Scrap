@@ -20,7 +20,9 @@ export const FractureCountLogGrid: React.FC = () => {
 		rowMetadata,
 		handleCellValueChanged,
 		handleEditRow,
-	} = useGeotechGridOperations(SectionKey.FractureCountLog, "FractureCountLogId");
+		uiState,
+		updateUIState,
+	} = useGeotechGridOperations(SectionKey.FractureCountLog, "FractureCountLogId", "FractureCount");
 
 	console.log("[FractureCountLogGrid] 📊 Rendering grid", {
 		rowCount: rows.length,
@@ -48,6 +50,9 @@ export const FractureCountLogGrid: React.FC = () => {
 				sortColumn="DepthFrom"
 				readOnly={isReadOnly}
 				getRowClass={getRowClass}
+				rowIdField="FractureCountLogId"
+				uiState={uiState}
+				onUIStateChange={updateUIState}
 			/>
 		</div>
 	);

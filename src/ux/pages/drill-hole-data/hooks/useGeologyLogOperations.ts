@@ -10,6 +10,8 @@
 import { Modal, message } from "antd";
 import { useCallback, useMemo } from "react";
 
+import { useGridUIContext } from "./useGridUIContext";
+
 import type { GeologyCombinedLogData } from "../validation";
 import { SectionKey } from "../types/data-contracts";
 import { createEmptyGeologyCombinedLogData } from "../validation";
@@ -32,7 +34,7 @@ import { useDrillHoleDataStore } from "../store";
  *   handleSaveAll,
  * } = useGeologyLogOperations();
  */
-export function useGeologyLogOperations() {
+export function useGeologyLogOperations(lens = "Litho") {
 	console.log(`[useGeologyLogOperations] 🎣 Hook initialized`);
 
 	// ========================================================================
@@ -46,6 +48,7 @@ export function useGeologyLogOperations() {
 	const saveSection = useDrillHoleDataStore(state => state.saveSection);
 	const canEdit = useDrillHoleDataStore(state => state.canEdit(SectionKey.GeologyCombinedLog));
 	const openDrawer = useDrillHoleDataStore(state => state.openDrawer);
+	const { uiState, updateUIState } = useGridUIContext("Geology", lens);
 
 	// ========================================================================
 	// Grid Data
@@ -259,5 +262,9 @@ return {
 	// Validation
 	validateRow: section.validateRow,
 	validateAll: section.validateAll,
+
+	// Persisted UI context state
+	uiState,
+	updateUIState,
 };
 }

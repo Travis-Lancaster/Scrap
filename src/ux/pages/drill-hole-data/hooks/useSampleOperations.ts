@@ -8,6 +8,7 @@
  */
 
 import { useCallback, useMemo } from "react";
+import { useGridUIContext } from "./useGridUIContext";
 import { message, Modal } from "antd";
 import { useDrillHoleDataStore } from "../store";
 import { SectionKey } from "../types/data-contracts";
@@ -22,7 +23,7 @@ import { SectionKey } from "../types/data-contracts";
  * 
  * @returns Sample operations and state
  */
-export function useSampleOperations() {
+export function useSampleOperations(lens = "Sample") {
 	console.log(`[useSampleOperations] 🎣 Hook initialized`);
 
 	// ========================================================================
@@ -36,6 +37,7 @@ export function useSampleOperations() {
 	const saveSection = useDrillHoleDataStore(state => state.saveSection);
 	const canEdit = useDrillHoleDataStore(state => state.canEdit(SectionKey.AllSamples));
 	const openDrawer = useDrillHoleDataStore(state => state.openDrawer);
+	const { uiState, updateUIState } = useGridUIContext("Sampling", lens);
 
 	// ========================================================================
 	// Grid Data
@@ -216,5 +218,9 @@ export function useSampleOperations() {
 		// Validation
 		validateRow: section.validateRow,
 		validateAll: section.validateAll,
+
+		// Persisted UI context state
+		uiState,
+		updateUIState,
 	};
 }

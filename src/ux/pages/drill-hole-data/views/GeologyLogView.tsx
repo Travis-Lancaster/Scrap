@@ -13,6 +13,10 @@ export const GeologyLogView: React.FC = () => {
 	const selectedSection = useDrillHoleDataStore(state => state.selectedSection);
 	const closeDrawer = useDrillHoleDataStore(state => state.closeDrawer);
 	const currentLens = activeLens || "Litho";
+	const viewUIState = useDrillHoleDataStore(state => state.getViewUIState("Geology", currentLens));
+
+	console.log("[GeologyLogView] Rendering", { currentLens, uiContext: viewUIState });
+
 
 	const renderGrid = () => {
 		if (["Litho", "Alteration", "Veins", "Everything"].includes(currentLens)) return <GeologyCombinedLogGrid />;

@@ -42,7 +42,9 @@ export const GeologyCombinedLogGrid: React.FC = () => {
 		isDirty,
 		rowMetadata,
 		handleEditRow,
-	} = useGeologyLogOperations();
+		uiState,
+		updateUIState,
+	} = useGeologyLogOperations(currentLens);
 
 	const openDrawer = useDrillHoleDataStore(state => state.openDrawer);
 
@@ -122,6 +124,9 @@ export const GeologyCombinedLogGrid: React.FC = () => {
 				sortColumn="DepthFrom"
 				readOnly={isReadOnly}
 				getRowClass={getRowClass}
+				rowIdField="GeologyCombinedLogId"
+				uiState={uiState}
+				onUIStateChange={updateUIState}
 			/>
 		</div>
 	);
