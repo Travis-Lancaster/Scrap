@@ -198,7 +198,7 @@ export function unloadDrillHole(set: any): void {
 		modifiedAt: null,
 		activeTab: "Setup",
 		activeLens: {
-			Setup: "Collar",
+			Setup: "RigSheet",
 			Geology: "Litho",
 			Geotech: "CoreRecoveryRun",
 			Sampling: "Sample",

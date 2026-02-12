@@ -65,9 +65,8 @@ export const InspectorDrawer: React.FC = () => {
 			placement="right"
 			open={isDrawerOpen}
 			onClose={closeDrawer}
-			width="clamp(420px, 45vw, 980px)"
+			width={520}
 			destroyOnClose
-			bodyStyle={{ display: "flex", flexDirection: "column", gap: 8 }}
 		>
 			<Form form={form} layout="vertical">
 				{visibleFields.map((field) => {

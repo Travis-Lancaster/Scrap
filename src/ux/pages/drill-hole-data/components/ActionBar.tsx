@@ -1,16 +1,14 @@
 import React, { useMemo } from "react";
-import { Button, message, Modal } from "antd";
-import { PlusOutlined, ReloadOutlined, SaveOutlined } from "@ant-design/icons";
-import { shallow } from "zustand/shallow";
+import { ReloadOutlined, SaveOutlined } from "@ant-design/icons";
 
-import { useDrillHoleDataStore } from "../store";
-import { canAddRows, createEmptyRow } from "../utils/row-actions";
+import { Button } from "antd";
 import { getSectionKeyForTab } from "../utils/navigation";
+import { useDrillHoleDataStore } from "../store";
 
 const LENSES_BY_TAB: Record<string, string[]> = {
-	Setup: ["Collar", "RigSheet", "DrillMethod", "SurveyLog"],
-	Geology: ["Litho", "Alteration", "Veins", "Everything"],
-	Geotech: [
+	"Setup": ["RigSetup", "Collar Coordinate"],
+	"Geology": ["Litho", "Alteration", "Veins", "Everything"],
+	"Geotech": [
 		"CoreRecoveryRun",
 		"FractureCount",
 		"MagSus",
@@ -27,113 +25,15 @@ const OTHER_LOGS_BY_TAB: Record<string, string[]> = {
 };
 
 export const ActionBar: React.FC = () => {
-	const {
-		activeTab,
-		activeLens,
-		setActiveLens,
-		saveSection,
-		refreshSection,
-		addRow,
-		deleteRow,
-		openDrawer,
-		drillPlanId,
-		vwCollar,
-	} = useDrillHoleDataStore(
-		state => ({
-			activeTab: state.activeTab,
-			activeLens: state.activeLens,
-			setActiveLens: state.setActiveLens,
-			saveSection: state.saveSection,
-			refreshSection: state.refreshSection,
-			addRow: state.addRow,
-			deleteRow: state.deleteRow,
-			openDrawer: state.openDrawer,
-			drillPlanId: state.drillPlanId,
-			vwCollar: state.vwCollar,
-		}),
-		shallow,
-	);
+	const { activeTab, activeLens, setActiveLens } = useDrillHoleDataStore();
 
 	const currentLenses = LENSES_BY_TAB[activeTab] || [];
 	const currentOtherLogs = OTHER_LOGS_BY_TAB[activeTab] || [];
 	const currentViewLens = activeLens[activeTab] || currentLenses[0] || "";
-	const currentSectionKey = useMemo(() => getSectionKeyForTab(activeTab, currentViewLens), [activeTab, currentViewLens]);
 
-	const currentSection = useDrillHoleDataStore(
-		state => (currentSectionKey ? (state.sections as any)[currentSectionKey] : null),
-		shallow,
-	);
-
-	const currentRows = useMemo(() => (Array.isArray(currentSection?.data) ? currentSection.data : []), [currentSection]);
-
-	const handleLensClick = (lens: string) => {
-		console.log("[ActionBar] 🔍 Lens click", { activeTab, lens, timestamp: new Date().toISOString() });
-		setActiveLens(activeTab, lens);
-	};
-
-	const handleSave = async () => {
-		if (!currentSectionKey) return;
-		console.log("[ActionBar] 💾 Save requested", { activeTab, currentViewLens, currentSectionKey });
-		await saveSection(currentSectionKey);
-	};
-
-	const handleRefresh = async () => {
-		if (!currentSectionKey) return;
-		console.log("[ActionBar] 🔄 Section refresh requested", { activeTab, currentViewLens, currentSectionKey });
-		await refreshSection(currentSectionKey);
-	};
-
-	const handleAddInterval = () => {
-		if (!canAddRows(currentSectionKey)) {
-			message.info("Add Interval is not available in this section");
-			return;
-		}
-
-		const lastRow = currentRows[currentRows.length - 1] || null;
-		const nextDepth = lastRow?.DepthTo || 0;
-		const newRow = createEmptyRow(currentSectionKey, {
-			drillPlanId,
-			organization: vwCollar?.Organization,
-			depthFrom: nextDepth,
-		});
-
-		console.log("[ActionBar] ➕ Add Interval", { currentSectionKey, newRowId: Object.values(newRow)[0] });
-		addRow(currentSectionKey, newRow);
-		openDrawer(currentSectionKey, newRow);
-	};
-
-	const handleNewLog = () => {
-		if (!canAddRows(currentSectionKey)) {
-			message.info("New Log is not available in this section");
-			return;
-		}
-
-		Modal.confirm({
-			title: "Start New Log",
-			content: "This will soft-delete current rows for this section and create a fresh first row.",
-			okText: "Start New Log",
-			onOk: () => {
-				currentRows.forEach((row: any) => {
-					const rowId = row.GeologyCombinedLogId || row.ShearLogId || row.StructureLogId || row.CoreRecoveryRunLogId || row.FractureCountLogId || row.MagSusLogId || row.RockMechanicLogId || row.RockQualityDesignationLogId || row.SpecificGravityPtLogId || row.SampleId;
-					if (rowId) {
-						deleteRow(currentSectionKey, String(rowId));
-					}
-				});
-
-				const firstRow = createEmptyRow(currentSectionKey, {
-					drillPlanId,
-					organization: vwCollar?.Organization,
-					depthFrom: 0,
-				});
-
-				console.log("[ActionBar] 🆕 New Log created", { currentSectionKey });
-				addRow(currentSectionKey, firstRow);
-				openDrawer(currentSectionKey, firstRow);
-			},
-		});
-	};
-
-	const showLogActions = canAddRows(currentSectionKey) && activeTab !== "Setup" && activeTab !== "QAQC" && activeTab !== "SignOff" && activeTab !== "Summary";
+	if (currentLenses.length === 0 && currentOtherLogs.length === 0) {
+		return null;
+	}
 
 	return (
 		<div className="bg-slate-50 p-3 flex justify-between items-center px-6 border-b">

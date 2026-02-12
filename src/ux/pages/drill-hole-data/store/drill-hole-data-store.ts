@@ -179,7 +179,7 @@ export const useDrillHoleDataStore = create<DrillHoleDataState>()(
 
 			activeTab: "Setup",
 			activeLens: {
-				"Setup": TAB_DEFAULT_LENS.Setup || "Collar",
+				"Setup": TAB_DEFAULT_LENS.Setup || "RigSheet",
 				"Geology": TAB_DEFAULT_LENS.Geology || "Litho",
 				"Geotech": TAB_DEFAULT_LENS.Geotech || "CoreRecoveryRun",
 				"Sampling": TAB_DEFAULT_LENS.Sampling || "Sample",
