@@ -10,6 +10,7 @@
 import type { StoreApi } from "zustand";
 import { loadDrillHoleData } from "../services/drill-hole-data-service";
 import { mapDrillHoleAggregateToStore } from "./section-mappers";
+import { SectionKey } from "../types/data-contracts";
 
 /**
  * Load drill hole data into store
@@ -235,4 +236,47 @@ export async function refreshDrillHole(set: any, get: any): Promise<void> {
 	console.log(`[StoreLoaders] 🔄 Refreshing drill hole:`, drillPlanId);
 
 	await loadDrillHole(set, get, drillPlanId, true); // forceRefresh = true
+}
+
+
+/**
+ * Refresh a single section while preserving unsaved state in other sections.
+ */
+export async function refreshSection(set: any, get: any, sectionKey: SectionKey): Promise<void> {
+	const drillPlanId = get().drillPlanId;
+
+	if (!drillPlanId) {
+		console.warn(`[StoreLoaders] ⚠️ Cannot refresh section - no drill plan loaded`, { sectionKey });
+		return;
+	}
+
+	console.log(`[StoreLoaders] 🔄 Refreshing section`, { sectionKey, drillPlanId });
+
+	const previousSections = get().sections;
+	const preservedBySection = Object.entries(previousSections).reduce((acc: any, [key, section]: [string, any]) => {
+		acc[key] = {
+			data: section.data,
+			originalData: section.originalData,
+			rowMetadata: section.rowMetadata,
+			rowVersions: section.rowVersions,
+			isDirty: section.isDirty,
+		};
+		return acc;
+	}, {});
+
+	await loadDrillHole(set, get, drillPlanId, true);
+
+	set((state: any) => {
+		Object.entries(preservedBySection).forEach(([key, preserved]: [string, any]) => {
+			if (key !== sectionKey) {
+				state.sections[key].data = preserved.data;
+				state.sections[key].originalData = preserved.originalData;
+				state.sections[key].rowMetadata = preserved.rowMetadata;
+				state.sections[key].rowVersions = preserved.rowVersions;
+				state.sections[key].isDirty = preserved.isDirty;
+			}
+		});
+	});
+
+	console.log(`[StoreLoaders] ✅ Section refresh complete`, { sectionKey });
 }
