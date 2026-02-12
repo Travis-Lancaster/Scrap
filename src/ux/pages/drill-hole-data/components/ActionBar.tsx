@@ -1,9 +1,8 @@
-import React, { useMemo } from "react";
-import { ReloadOutlined, SaveOutlined } from "@ant-design/icons";
-
+import React, { useCallback } from "react";
 import { Button } from "antd";
-import { getSectionKeyForTab } from "../utils/navigation";
+import { PlusOutlined, ReloadOutlined, SaveOutlined } from "@ant-design/icons";
 import { useDrillHoleDataStore } from "../store";
+import { getSectionKeyForTab } from "../utils/navigation";
 
 const LENSES_BY_TAB: Record<string, string[]> = {
 	"Setup": ["RigSetup", "Collar Coordinate"],
@@ -25,11 +24,41 @@ const OTHER_LOGS_BY_TAB: Record<string, string[]> = {
 };
 
 export const ActionBar: React.FC = () => {
-	const { activeTab, activeLens, setActiveLens } = useDrillHoleDataStore();
+	const { activeTab, activeLens, setActiveLens, saveSection, refreshSection } = useDrillHoleDataStore();
 
 	const currentLenses = LENSES_BY_TAB[activeTab] || [];
 	const currentOtherLogs = OTHER_LOGS_BY_TAB[activeTab] || [];
 	const currentViewLens = activeLens[activeTab] || currentLenses[0] || "";
+
+	const currentSectionKey = getSectionKeyForTab(activeTab as any, currentViewLens);
+	const showLogActions = ["Geology", "Geotech"].includes(activeTab);
+
+	const handleLensClick = useCallback((lens: string) => {
+		console.log("[ActionBar] Lens clicked:", { tab: activeTab, lens });
+		setActiveLens(activeTab, lens);
+	}, [activeTab, setActiveLens]);
+
+	const handleAddInterval = useCallback(() => {
+		console.log("[ActionBar] Add Interval clicked");
+	}, []);
+
+	const handleNewLog = useCallback(() => {
+		console.log("[ActionBar] New Log clicked");
+	}, []);
+
+	const handleRefresh = useCallback(async () => {
+		console.log("[ActionBar] Refresh clicked");
+		if (currentSectionKey) {
+			await refreshSection(currentSectionKey as any);
+		}
+	}, [currentSectionKey, refreshSection]);
+
+	const handleSave = useCallback(async () => {
+		console.log("[ActionBar] Save clicked");
+		if (currentSectionKey) {
+			await saveSection(currentSectionKey as any);
+		}
+	}, [currentSectionKey, saveSection]);
 
 	if (currentLenses.length === 0 && currentOtherLogs.length === 0) {
 		return null;
