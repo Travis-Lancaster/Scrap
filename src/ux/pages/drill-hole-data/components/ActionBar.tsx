@@ -60,10 +60,6 @@ export const ActionBar: React.FC = () => {
 		}
 	}, [currentSectionKey, saveSection]);
 
-	if (currentLenses.length === 0 && currentOtherLogs.length === 0) {
-		return null;
-	}
-
 	return (
 		<div className="bg-slate-50 p-3 flex justify-between items-center px-6 border-b">
 			<div className="flex items-center space-x-2">

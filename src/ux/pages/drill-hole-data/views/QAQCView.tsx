@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+import React from "react";
+
+import { QAQCReportsGrid } from "../sections/grids";
+=======
 /**
  * QAQC View
  *
@@ -28,8 +33,14 @@ export const QAQCView: React.FC = () => {
 
 	const rowData = section?.data || [];
 	const columnDefs = getQaqcColumns();
+>>>>>>> main
 
+export const QAQCView: React.FC = () => {
 	return (
+<<<<<<< HEAD
+		<div className="h-full overflow-hidden bg-white">
+			<QAQCReportsGrid />
+=======
 		<div className="flex flex-col h-full">
 			<div className="flex-1 overflow-hidden bg-white">
 				{rowData.length > 0 ? (
@@ -60,6 +71,7 @@ export const QAQCView: React.FC = () => {
 				onSave={onSave}
 				onSubmit={onSubmit}
 			/>
+>>>>>>> main
 		</div>
 	);
 };

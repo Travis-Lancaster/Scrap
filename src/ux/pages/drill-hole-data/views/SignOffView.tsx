@@ -1,13 +1,30 @@
 /**
  * SignOff View
+<<<<<<< HEAD
+ * 
+ * Final sign-off view displaying VwCollar data.
+ * 
+=======
  *
  * Final sign-off view displaying VwCollar data and section completion status.
  * Shows VwCollar grid/details plus overall section progress.
  *
+>>>>>>> main
  * @module drill-hole-data/views
  */
 
 import React from "react";
+<<<<<<< HEAD
+import { VwCollarGrid } from "../sections/grids";
+
+export const SignOffView: React.FC = () => {
+	console.log("[SignOffView] 📋 Rendering SignOff view as VwCollar grid");
+
+	return (
+		<div className="flex flex-col h-full">
+			<div className="flex-1 overflow-hidden bg-white">
+				<VwCollarGrid />
+=======
 
 import { Badge, Card, Descriptions, Progress, Space, Typography } from "antd";
 import { CheckCircleOutlined, ClockCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
@@ -136,6 +153,7 @@ export const SignOffView: React.FC = () => {
 						</Space>
 					</Space>
 				</Card>
+>>>>>>> main
 			</div>
 		</div>
 	);

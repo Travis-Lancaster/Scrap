@@ -1,3 +1,10 @@
+<<<<<<< HEAD
+import React from "react";
+
+import { DispatchForm } from "../sections/forms/DispatchForm";
+import { AllSamplesGrid, LabResultsGrid } from "../sections/grids";
+import { useDrillHoleDataStore } from "../store";
+=======
 /**
  * Sampling View
  *
@@ -19,6 +26,7 @@ import { SectionFooter } from "../components/SectionFooter";
 import { SectionKey } from "../types/data-contracts";
 import { useDrillHoleDataStore } from "../store";
 import { useSectionActions } from "../hooks";
+>>>>>>> main
 
 export const SamplingView: React.FC = () => {
 	const activeLens = useDrillHoleDataStore(state => state.activeLens["Sampling"]);
@@ -28,6 +36,18 @@ export const SamplingView: React.FC = () => {
 
 	const currentLens = activeLens || "Sample";
 
+<<<<<<< HEAD
+	const renderContent = () => {
+		switch (currentLens) {
+			case "Sample": return <AllSamplesGrid />;
+			case "Dispatch": return <DispatchForm />;
+			case "LabResults": return <LabResultsGrid />;
+			default: return <AllSamplesGrid />;
+		}
+	};
+
+	return <div className="h-full overflow-hidden bg-white">{renderContent()}</div>;
+=======
 	// Map lens to section key
 	const currentSectionKey =
 		currentLens === "Sample" ? SectionKey.AllSamples :
@@ -102,4 +122,5 @@ export const SamplingView: React.FC = () => {
 			)}
 		</div>
 	);
+>>>>>>> main
 };

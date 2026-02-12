@@ -11,6 +11,18 @@ import type { StoreApi } from "zustand";
 import { loadDrillHoleData } from "../services/drill-hole-data-service";
 import { mapDrillHoleAggregateToStore } from "./section-mappers";
 import { SectionKey } from "../types/data-contracts";
+<<<<<<< HEAD
+
+function applyArraySection(state: any, key: string, mapped: any) {
+	if (!mapped || !state.sections[key]) return;
+	state.sections[key].data = mapped.data || [];
+	state.sections[key].originalData = mapped.data || [];
+	state.sections[key].rowMetadata = mapped.metadata || {};
+	state.sections[key].rowVersions = mapped.versions || {};
+	state.sections[key].isDirty = false;
+}
+=======
+>>>>>>> main
 
 /**
  * Load drill hole data into store
@@ -115,28 +127,21 @@ export async function loadDrillHole(
 			}
 
 			// Update array sections
-			if (mappedSections.geologyCombinedLog) {
-				console.log(`[StoreLoaders] 📝 Setting geologyCombinedLog data:`, {
-					rowCount: mappedSections.geologyCombinedLog.data.length,
-					metadataCount: Object.keys(mappedSections.geologyCombinedLog.metadata).length,
-				});
-				state.sections.geologyCombinedLog.data = mappedSections.geologyCombinedLog.data;
-				state.sections.geologyCombinedLog.originalData = mappedSections.geologyCombinedLog.data;
-				state.sections.geologyCombinedLog.rowMetadata = mappedSections.geologyCombinedLog.metadata;
-				state.sections.geologyCombinedLog.rowVersions = mappedSections.geologyCombinedLog.versions;
-				state.sections.geologyCombinedLog.isDirty = false;
-			}
+			applyArraySection(state, "geologyCombinedLog", mappedSections.geologyCombinedLog);
+			applyArraySection(state, "shearLog", mappedSections.shearLog);
+			applyArraySection(state, "structureLog", mappedSections.structureLog);
+			applyArraySection(state, "allSamples", mappedSections.allSamples);
+			applyArraySection(state, "coreRecoveryRunLog", mappedSections.coreRecoveryRunLog);
+			applyArraySection(state, "fractureCountLog", mappedSections.fractureCountLog);
+			applyArraySection(state, "magSusLog", mappedSections.magSusLog);
+			applyArraySection(state, "rockMechanicLog", mappedSections.rockMechanicLog);
+			applyArraySection(state, "rockQualityDesignationLog", mappedSections.rockQualityDesignationLog);
+			applyArraySection(state, "specificGravityPtLog", mappedSections.specificGravityPtLog);
 
-			if (mappedSections.allSamples) {
-				console.log(`[StoreLoaders] 📝 Setting allSamples data:`, {
-					rowCount: mappedSections.allSamples.data.length,
-					metadataCount: Object.keys(mappedSections.allSamples.metadata).length,
-				});
-				state.sections.allSamples.data = mappedSections.allSamples.data;
-				state.sections.allSamples.originalData = mappedSections.allSamples.data;
-				state.sections.allSamples.rowMetadata = mappedSections.allSamples.metadata;
-				state.sections.allSamples.rowVersions = mappedSections.allSamples.versions;
-				state.sections.allSamples.isDirty = false;
+			if (mappedSections.dispatch) {
+				state.sections.dispatch.data = mappedSections.dispatch;
+				state.sections.dispatch.originalData = mappedSections.dispatch;
+				state.sections.dispatch.isDirty = false;
 			}
 
 			// Update core data
@@ -198,7 +203,11 @@ export function unloadDrillHole(set: any): void {
 		modifiedAt: null,
 		activeTab: "Setup",
 		activeLens: {
+<<<<<<< HEAD
+			Setup: "Collar",
+=======
 			Setup: "RigSheet",
+>>>>>>> main
 			Geology: "Litho",
 			Geotech: "CoreRecoveryRun",
 			Sampling: "Sample",
