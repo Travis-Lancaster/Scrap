@@ -1,0 +1,245 @@
+/* Sheet Component Styles - Optimized for Performance */
+
+/* Layout Styles */
+.sheetContainer {
+  padding: 4px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Print-specific constraints */
+@media print {
+  .sheetContainer {
+    max-width: 210mm;
+  }
+}
+
+.sheetHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 8px;
+  background-color: #f5f5f5;
+  border: 2px solid #000;
+}
+
+.sheetLogo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logoTriangle {
+  width: 60px;
+  height: 60px;
+  background-color: #000;
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+  position: relative;
+}
+
+.logoText {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #FFD700;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.sheetTitle {
+  margin: 0;
+  color: #d32f2f;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+/* Table Styles */
+.sheetTable {
+  width: 100%;
+  border-collapse: collapse;
+  border: 2px solid #000;
+  margin-bottom: 8px;
+}
+
+.tableRow {
+  border-bottom: 1px solid #d9d9d9;
+}
+
+.tableRowBold {
+  border-bottom: 2px solid #000;
+}
+
+.labelCell {
+  padding: 4px 8px;
+  font-weight: bold;
+  background-color: #f0f0f0;
+  width: 20%;
+  border-right: 1px solid #d9d9d9;
+}
+
+.labelCellLarge {
+  padding: 4px 8px;
+  font-weight: bold;
+  background-color: #f0f0f0;
+  font-size: 20px;
+}
+
+.valueCell {
+  padding: 4px 8px;
+  width: 30%;
+}
+
+.valueCellFull {
+  padding: 4px 8px;
+}
+
+.splitCell {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.splitField {
+  width: 48%;
+}
+
+/* Section Styles */
+.sectionBox {
+  padding: 4px 8px;
+  background-color: #f0f0f0;
+  border: 2px solid #000;
+  margin-bottom: 8px;
+}
+
+.sectionTitle {
+  font-weight: bold;
+  color: #d32f2f;
+}
+
+.commentsBox {
+  border: 2px solid #000;
+  margin-bottom: 8px;
+}
+
+.commentsHeader {
+  padding: 4px 8px;
+  font-weight: bold;
+  border-bottom: 1px solid #000;
+}
+
+.commentsContent {
+  padding: 8px;
+}
+
+/* Footer Styles */
+.footerBox {
+  padding: 4px 8px;
+  border: 2px solid #000;
+  margin-bottom: 4px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+/* AG Grid Row Styling */
+.empty-row-highlight {
+  background-color: #f0f0f0 !important;
+}
+
+/* Use :global for AG Grid classes since they're applied dynamically */
+:global(.strike-through-row) {
+  /* background-color: #cc333344 !important; */
+}
+
+/* Target cells within strike-through rows for text styling */
+:global(.strike-through-row .ag-cell) {
+  text-decoration: line-through !important;
+  color: #999 !important;
+}
+
+:global(.qaqc-row) {
+    background-color: #fffbe6 !important;
+}
+:global(.empty-row) {
+    background-color: #f0f0f0 !important;
+}
+
+
+/* Print Styles */
+@media print {
+  @page {
+    size: A4;
+    margin: 8mm;
+  }
+
+  body {
+    font-size: 10px;
+    line-height: 1.2;
+  }
+
+  .printHide {
+    display: none !important;
+  }
+
+  .sheetTable {
+    font-size: 9px;
+  }
+
+  .sheetTitle {
+    font-size: 24px;
+  }
+}
+
+.descriptions{
+	/* background-color: #d32f2f; */
+	display: grid;
+/* grid-template-columns: 150px 150px 1fr; */
+
+  /* gap: 24px; */
+}
+
+.grid{
+	background-color: #d32f2f;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);  /* 2 even columns */
+  gap: 24px;  /* space between sections */
+}
+
+
+
+.descriptionsGrid {
+  display: grid;
+  grid-template-columns: auto 200px;
+  align-items: start;
+  position: relative;
+}
+
+/* Every Descriptions.Item produces 1 table row,
+   so the 3rd Descriptions row is grid-row: 3 */
+.sideNote[data-row="3"] {
+  grid-column: 2;
+  grid-row: 3;
+  padding: 4px;
+  background: #f9f9f9;
+  border-left: 3px solid #1890ff;
+  font-size: 12px;
+
+}
+
+.collarDescriptionGrid{
+	  display: grid;
+  grid-template-columns: auto 200px;
+  align-items: start;
+  position: relative;
+}
+
+.verticalLabel {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  color: black;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* table alignment */

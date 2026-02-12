@@ -1,46 +1,83 @@
-import React, { useMemo } from "react";
+/**
+ * Setup View
+ *
+ * Main view for Setup tab with lens-based navigation.
+ * Displays RigSetup or CollarCoordinate based on active lens.
+ *
+ * @module drill-hole-data/views
+ */
 
-import { Card } from "antd";
+import React, { useEffect } from "react";
+
 import { CollarCoordinateForm } from "../sections/forms/CollarCoordinateForm";
 import { RigSetupForm } from "../sections/forms";
+import { RigSetupFormView } from "../sections/forms/rig-setup";
+import { SectionFooter } from "../components/SectionFooter";
 import { SectionKey } from "../types/data-contracts";
 import { useDrillHoleDataStore } from "../store";
-
-const SetupPlaceholder: React.FC<{ title: string; subtitle: string }> = ({ title, subtitle }) => (
-	<div className="p-6 bg-slate-50 h-full overflow-auto">
-		<Card title={title} bordered={false} className="shadow-sm">
-			<div className="text-slate-500">{subtitle}</div>
-		</Card>
-	</div>
-);
+import { useSectionActions } from "../hooks";
 
 export const SetupView: React.FC = () => {
+	// ========================================================================
+	// Store Selectors
+	// ========================================================================
+
 	const activeLens = useDrillHoleDataStore(state => state.activeLens["Setup"]);
-	const currentLens = activeLens || "Collar";
+	const drillPlanId = useDrillHoleDataStore(state => state.drillPlanId);
+	const currentLens = activeLens || "RigSheet";
 
-	const currentSectionKey = useMemo(() => {
-		if (currentLens === "RigSheet") return SectionKey.RigSetup;
-		if (currentLens === "Collar") return SectionKey.CollarCoordinate;
-		return null;
-	}, [currentLens]);
+	// Get current section key based on lens
+	const currentSectionKey = currentLens === "RigSheet"
+		? SectionKey.RigSetup
+		: SectionKey.CollarCoordinate;
 
-	const section = useDrillHoleDataStore(state => (currentSectionKey ? state.sections[currentSectionKey] : null));
+	// Get section state for footer
+	const section = useDrillHoleDataStore(state => state.sections[currentSectionKey]);
 
-	console.log("[SetupView] 📊 Rendering", {
+	console.log("[SetupView] 🔍 Rendering SetupView", {
 		currentLens,
 		sectionKey: currentSectionKey,
+		hasSection: !!section,
+		sectionData: section?.data,
 		isDirty: section?.isDirty,
 		rowStatus: section?.data?.RowStatus,
+		timestamp: new Date().toISOString(),
 	});
 
-	if (currentLens === "RigSheet") return <RigSetupForm />;
-	if (currentLens === "Collar") return <CollarCoordinateForm />;
-	if (currentLens === "DrillMethod") {
-		return <SetupPlaceholder title="Drill Method" subtitle="DrillMethod form integrated into Setup lens navigation slot." />;
-	}
-	if (currentLens === "SurveyLog") {
-		return <SetupPlaceholder title="Survey / SurveyLog" subtitle="Survey and SurveyLog integrated into Setup lens navigation slot." />;
-	}
+	// Log when section changes
+	useEffect(() => {
+		console.log("[SetupView] 📊 Section state changed", {
+			sectionKey: currentSectionKey,
+			isDirty: section?.isDirty,
+			rowStatus: section?.data?.RowStatus,
+			timestamp: new Date().toISOString(),
+		});
+	}, [section?.isDirty, section?.data?.RowStatus, currentSectionKey]);
 
-	return <SetupPlaceholder title="Setup" subtitle="Select a setup lens." />;
+	// ========================================================================
+	// Section Actions
+	// ========================================================================
+
+	const { onSave, onSubmit } = useSectionActions(currentSectionKey);
+
+	// ========================================================================
+	// Render
+	// ========================================================================
+
+	return (
+		<div className="flex flex-col h-full">
+			<div className="flex-1 overflow-auto p-6 bg-slate-50">
+				{currentLens === "RigSheet" && <RigSetupFormView drillPlanId={drillPlanId || ""} />}
+				{currentLens === "Coordinate" && <CollarCoordinateForm />}
+			</div>
+
+			{/* Section Footer with integrated actions */}
+			<SectionFooter
+				rowStatus={section?.data?.RowStatus || 0}
+				isDirty={section?.isDirty || false}
+				onSave={onSave}
+				onSubmit={onSubmit}
+			/>
+		</div>
+	);
 };
