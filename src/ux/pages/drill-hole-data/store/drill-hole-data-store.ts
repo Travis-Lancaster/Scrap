@@ -386,12 +386,6 @@ export const useDrillHoleDataStore = create<DrillHoleDataState>()(
 				if (section.data && typeof section.data === "object" && "RowStatus" in section.data) {
 					const sectionRowStatus = (section.data as any).RowStatus;
 					if (sectionRowStatus !== 0) {
-						console.log("[Store] 🔒 canEdit = false (Section check failed)", {
-							sectionKey,
-							sectionRowStatus,
-							reason: "Section is not in Draft status",
-							timestamp: new Date().toISOString(),
-						});
 						return false;
 					}
 				}
@@ -400,24 +394,10 @@ export const useDrillHoleDataStore = create<DrillHoleDataState>()(
 				if (rowId && section.rowMetadata) {
 					const metadata = section.rowMetadata[rowId];
 					if (metadata && metadata.rowStatus !== "Draft") {
-						console.log("[Store] 🔒 canEdit = false (Row check failed)", {
-							sectionKey,
-							rowId,
-							rowStatus: metadata.rowStatus,
-							reason: "Row is not in Draft status",
-							timestamp: new Date().toISOString(),
-						});
 						return false;
 					}
 				}
 
-				console.log("[Store] ✅ canEdit = true", {
-					sectionKey,
-					rowId,
-					collarRowStatus: state.collarRowStatus,
-					sectionRowStatus: (section.data as any)?.RowStatus,
-					timestamp: new Date().toISOString(),
-				});
 				return true;
 			},
 		})),

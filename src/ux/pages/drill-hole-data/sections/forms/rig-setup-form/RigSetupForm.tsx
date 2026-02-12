@@ -28,7 +28,7 @@ import { DownHoleSurveySection } from "./DownHoleSurveySection";
 import { FinalSetupSection } from "./FinalSetupSection";
 import { PadInspectionSection } from "./PadInspectionSection";
 // Types
-import type { RigSetupData } from "../../../validation";
+import type { RigSetupData as RigSetupFormData } from "../../../validation";
 import { useLookups } from "#src/data-layer/hooks/useLookups.js";
 // Custom hook
 import { useRigSetupForm } from "../../../hooks";
@@ -63,7 +63,7 @@ declare global {
 // Type for subsection compatibility
 // ============================================================================
 
-type RigSetupData = RigSetupData;
+type RigSetupData = RigSetupFormData;
 
 /**
  * RigSetupForm Component

@@ -33,7 +33,6 @@ export const ActionBar: React.FC = () => {
 		setActiveLens,
 		saveSection,
 		refreshSection,
-		sections,
 		addRow,
 		deleteRow,
 		openDrawer,
@@ -46,7 +45,6 @@ export const ActionBar: React.FC = () => {
 			setActiveLens: state.setActiveLens,
 			saveSection: state.saveSection,
 			refreshSection: state.refreshSection,
-			sections: state.sections,
 			addRow: state.addRow,
 			deleteRow: state.deleteRow,
 			openDrawer: state.openDrawer,
@@ -61,11 +59,12 @@ export const ActionBar: React.FC = () => {
 	const currentViewLens = activeLens[activeTab] || currentLenses[0] || "";
 	const currentSectionKey = useMemo(() => getSectionKeyForTab(activeTab, currentViewLens), [activeTab, currentViewLens]);
 
-	const currentRows = useMemo(() => {
-		if (!currentSectionKey) return [];
-		const section = (sections as any)[currentSectionKey];
-		return Array.isArray(section?.data) ? section.data : [];
-	}, [sections, currentSectionKey]);
+	const currentSection = useDrillHoleDataStore(
+		state => (currentSectionKey ? (state.sections as any)[currentSectionKey] : null),
+		shallow,
+	);
+
+	const currentRows = useMemo(() => (Array.isArray(currentSection?.data) ? currentSection.data : []), [currentSection]);
 
 	const handleLensClick = (lens: string) => {
 		console.log("[ActionBar] 🔍 Lens click", { activeTab, lens, timestamp: new Date().toISOString() });
