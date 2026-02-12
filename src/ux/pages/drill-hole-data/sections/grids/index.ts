@@ -21,3 +21,7 @@ export { SpecificGravityPtLogGrid } from "./SpecificGravityPtLogGrid";
 
 // Sampling grid
 export { AllSamplesGrid } from "./AllSamplesGrid";
+
+export { QAQCReportsGrid } from "./QAQCReportsGrid";
+export { VwCollarGrid } from "./VwCollarGrid";
+export { LabResultsGrid } from "./LabResultsGrid";

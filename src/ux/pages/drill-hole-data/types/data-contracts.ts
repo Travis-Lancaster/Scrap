@@ -298,6 +298,7 @@ export interface ActionResult {
 	message: string;
 	errors?: string[];
 	warnings?: string[];
+	data?: any;
 }
 
 // ============================================================================

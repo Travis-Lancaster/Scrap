@@ -8,3 +8,4 @@
 
 export { RigSetupForm } from "./rig-setup-form/RigSetupForm";
 export { CollarCoordinateForm } from "./CollarCoordinateForm";
+export { DispatchForm } from "./DispatchForm";

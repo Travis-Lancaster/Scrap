@@ -119,15 +119,29 @@ export async function saveSection(
 		const result = await saveSectionData(drillPlanId, sectionKey, dataToSave);
 
 		if (result.success) {
-			// Mark section as not dirty - use set() for Immer compatibility
 			set((state: any) => {
-				if (state.sections[sectionKey]) {
-					state.sections[sectionKey].isDirty = false;
-					state.sections[sectionKey].originalData = state.sections[sectionKey].data;
+				const storeSection = state.sections[sectionKey];
+				if (!storeSection) return;
+
+				if (result.data !== undefined) {
+					storeSection.data = result.data;
+				}
+
+				storeSection.originalData = storeSection.data;
+				storeSection.isDirty = false;
+
+				if (Array.isArray(storeSection.data) && storeSection.rowMetadata) {
+					storeSection.data.forEach((row: any) => {
+						const rowId = row.GeologyCombinedLogId || row.ShearLogId || row.StructureLogId || row.CoreRecoveryRunLogId || row.FractureCountLogId || row.MagSusLogId || row.RockMechanicLogId || row.RockQualityDesignationLogId || row.SpecificGravityPtLogId || row.SampleId;
+						if (rowId && storeSection.rowMetadata[rowId]) {
+							storeSection.rowMetadata[rowId].isDirty = false;
+							storeSection.rowMetadata[rowId].isNew = false;
+						}
+					});
 				}
 			});
 
-			console.log(`[StoreActions] ✅ Section saved successfully:`, sectionKey);
+			console.log(`[StoreActions] ✅ Section saved successfully with response data`, { sectionKey, hasData: result.data !== undefined });
 		}
 
 		return result;
