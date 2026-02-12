@@ -1,0 +1,202 @@
+/**
+ * useQaqcLookups Hook
+ *
+ * Provides dynamic lookup data for QAQC components
+ * Loads elements, methods, standards, etc. from configuration
+ */
+
+import { useEffect, useState } from 'react';
+// import { qaqcConfigService } from '@/services/qaqcConfigService';
+
+export interface QaqcLookups {
+  elements: Array<{ value: string; label: string }>;
+  methods: Array<{ value: string; label: string }>;
+  units: Array<{ value: string; label: string }>;
+  standardTypes: Array<{ value: string; label: string }>;
+  standards: Array<{ value: string; label: string; type: string }>;
+  labs: Array<{ value: string; label: string }>;
+  loading: boolean;
+  error: Error | null;
+}
+
+/**
+ * Hook to load and cache QAQC lookup data
+ * @param options.autoLoad - Whether to load data automatically on mount (default: true)
+ */
+export function useQaqcLookups(options: { autoLoad?: boolean } = {}): QaqcLookups & { refetch: () => Promise<void> } {
+  const { autoLoad = true } = options;
+
+  const [lookups, setLookups] = useState<QaqcLookups>({
+    elements: [],
+    methods: [],
+    units: [],
+    standardTypes: [],
+    standards: [],
+    labs: [],
+    loading: false,
+    error: null
+  });
+
+  const loadLookups = async () => {
+    setLookups(prev => ({ ...prev, loading: true, error: null }));
+
+    try {
+      // Load standards to get available elements and standard types
+      const standardsResponse = await qaqcConfigService.getStandards();
+      const standards = standardsResponse.standards;
+
+      // Extract unique elements from standards
+      const elementSet = new Set<string>();
+      standards.forEach(std => {
+        std.values.forEach(val => {
+          elementSet.add(val.element);
+        });
+      });
+
+      const elements = Array.from(elementSet)
+        .sort()
+        .map(el => ({
+          value: el,
+          label: getElementLabel(el)
+        }));
+
+      // Extract unique methods from standards
+      const methodSet = new Set<string>();
+      standards.forEach(std => {
+        std.values.forEach(val => {
+          methodSet.add(val.genericMethod);
+        });
+      });
+
+      const methods = Array.from(methodSet)
+        .sort()
+        .map(method => ({
+          value: method,
+          label: getMethodLabel(method)
+        }));
+
+      // Extract unique units
+      const unitSet = new Set<string>();
+      standards.forEach(std => {
+        std.values.forEach(val => {
+          unitSet.add(val.units);
+        });
+      });
+
+      const units = Array.from(unitSet)
+        .sort()
+        .map(unit => ({
+          value: unit,
+          label: unit
+        }));
+
+      // Extract standard types
+      const typeSet = new Set<string>();
+      standards.forEach(std => {
+        typeSet.add(std.standard.standardType);
+      });
+
+      const standardTypes = Array.from(typeSet)
+        .sort()
+        .map(type => ({
+          value: type,
+          label: getStandardTypeLabel(type)
+        }));
+
+      // Map standards for selection
+      const standardOptions = standards.map(std => ({
+        value: std.standard.standardId,
+        label: `${std.standard.standardId}${std.standard.supplier ? ` (${std.standard.supplier})` : ''}`,
+        type: std.standard.standardType
+      }));
+
+      // Mock labs (would come from Module D in production)
+      const labs = [
+        { value: 'ALS', label: 'ALS Minerals' },
+        { value: 'SGS', label: 'SGS Laboratories' },
+        { value: 'Bureau', label: 'Bureau Veritas' },
+        { value: 'Intertek', label: 'Intertek' }
+      ];
+
+      setLookups({
+        elements,
+        methods,
+        units,
+        standardTypes,
+        standards: standardOptions,
+        labs,
+        loading: false,
+        error: null
+      });
+    } catch (error) {
+      setLookups(prev => ({
+        ...prev,
+        loading: false,
+        error: error instanceof Error ? error : new Error('Failed to load lookups')
+      }));
+    }
+  };
+
+  useEffect(() => {
+    if (autoLoad) {
+      loadLookups();
+    }
+  }, [autoLoad]);
+
+  return {
+    ...lookups,
+    refetch: loadLookups
+  };
+}
+
+/**
+ * Get human-readable label for element symbol
+ */
+function getElementLabel(element: string): string {
+  const labels: Record<string, string> = {
+    Au: 'Gold (Au)',
+    Ag: 'Silver (Ag)',
+    Cu: 'Copper (Cu)',
+    Pb: 'Lead (Pb)',
+    Zn: 'Zinc (Zn)',
+    Li: 'Lithium (Li)',
+    Fe: 'Iron (Fe)',
+    As: 'Arsenic (As)',
+    Sb: 'Antimony (Sb)',
+    Mo: 'Molybdenum (Mo)',
+    W: 'Tungsten (W)'
+  };
+  return labels[element] || element;
+}
+
+/**
+ * Get human-readable label for method code
+ */
+function getMethodLabel(method: string): string {
+  const labels: Record<string, string> = {
+    FA50: 'Fire Assay 50g',
+    FA30: 'Fire Assay 30g',
+    FA: 'Fire Assay',
+    AqRegia: 'Aqua Regia',
+    '4A': '4-Acid Digestion',
+    'ICP-MS': 'ICP-MS',
+    'ICP-OES': 'ICP-OES',
+    XRF: 'XRF',
+    ME: 'Multi-Element'
+  };
+  return labels[method] || method;
+}
+
+/**
+ * Get human-readable label for standard type
+ */
+function getStandardTypeLabel(type: string): string {
+  const labels: Record<string, string> = {
+    CRM: 'Certified Reference Material (CRM)',
+    IRM: 'In-House Reference Material (IRM)',
+    BLK: 'Blank',
+    DUP: 'Duplicate Standard',
+    NR: 'No Reference'
+  };
+  return labels[type] || type;
+}

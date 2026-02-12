@@ -1,14 +1,12 @@
 import React, { useMemo } from "react";
-import { Button, message, Modal } from "antd";
-import { PlusOutlined, ReloadOutlined, SaveOutlined } from "@ant-design/icons";
-import { shallow } from "zustand/shallow";
+import { Button } from "antd";
+import { ReloadOutlined, SaveOutlined } from "@ant-design/icons";
 
 import { useDrillHoleDataStore } from "../store";
-import { canAddRows, createEmptyRow } from "../utils/row-actions";
 import { getSectionKeyForTab } from "../utils/navigation";
 
 const LENSES_BY_TAB: Record<string, string[]> = {
-	Setup: ["Collar", "RigSheet", "DrillMethod", "SurveyLog"],
+	Setup: ["RigSheet", "Coordinate"],
 	Geology: ["Litho", "Alteration", "Veins", "Everything"],
 	Geotech: [
 		"CoreRecoveryRun",
@@ -27,32 +25,7 @@ const OTHER_LOGS_BY_TAB: Record<string, string[]> = {
 };
 
 export const ActionBar: React.FC = () => {
-	const {
-		activeTab,
-		activeLens,
-		setActiveLens,
-		saveSection,
-		refreshSection,
-		addRow,
-		deleteRow,
-		openDrawer,
-		drillPlanId,
-		vwCollar,
-	} = useDrillHoleDataStore(
-		state => ({
-			activeTab: state.activeTab,
-			activeLens: state.activeLens,
-			setActiveLens: state.setActiveLens,
-			saveSection: state.saveSection,
-			refreshSection: state.refreshSection,
-			addRow: state.addRow,
-			deleteRow: state.deleteRow,
-			openDrawer: state.openDrawer,
-			drillPlanId: state.drillPlanId,
-			vwCollar: state.vwCollar,
-		}),
-		shallow,
-	);
+	const { activeTab, activeLens, setActiveLens, saveSection, refreshDrillHole } = useDrillHoleDataStore();
 
 	const currentLenses = LENSES_BY_TAB[activeTab] || [];
 	const currentOtherLogs = OTHER_LOGS_BY_TAB[activeTab] || [];
@@ -132,6 +105,35 @@ export const ActionBar: React.FC = () => {
 			},
 		});
 	};
+
+	const currentSectionKey = useMemo(() => getSectionKeyForTab(activeTab, currentViewLens), [activeTab, currentViewLens]);
+
+	const handleLensClick = (lens: string) => {
+		console.log("[ActionBar] 🔍 Lens click", {
+			activeTab,
+			lens,
+			timestamp: new Date().toISOString(),
+		});
+		setActiveLens(activeTab, lens);
+	};
+
+	const handleSave = async () => {
+		if (!currentSectionKey) {
+			console.log("[ActionBar] 💾 Save skipped - no section for tab", { activeTab, currentViewLens });
+			return;
+		}
+		console.log("[ActionBar] 💾 Save requested", { activeTab, currentViewLens, currentSectionKey });
+		await saveSection(currentSectionKey);
+	};
+
+	const handleRefresh = async () => {
+		console.log("[ActionBar] 🔄 Refresh requested", { activeTab, currentViewLens });
+		await refreshDrillHole();
+	};
+
+	if (currentLenses.length === 0 && currentOtherLogs.length === 0) {
+		return null;
+	}
 
 	const showLogActions = canAddRows(currentSectionKey) && activeTab !== "Setup" && activeTab !== "QAQC" && activeTab !== "SignOff" && activeTab !== "Summary";
 
