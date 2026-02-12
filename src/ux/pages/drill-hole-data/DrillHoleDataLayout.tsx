@@ -52,6 +52,8 @@ export const DrillHoleDataLayout: React.FC = () => {
 	const vwDrillPlan = useDrillHoleDataStore(state => state.vwDrillPlan);
 	const loadDrillHole = useDrillHoleDataStore(state => state.loadDrillHole);
 	const unloadDrillHole = useDrillHoleDataStore(state => state.unloadDrillHole);
+	const tabInitialized = useDrillHoleDataStore(state => state.tabInitialized);
+	const markTabInitialized = useDrillHoleDataStore(state => state.markTabInitialized);
 
 	// ========================================================================
 	// Data Loading
@@ -70,6 +72,15 @@ export const DrillHoleDataLayout: React.FC = () => {
 			unloadDrillHole();
 		};
 	}, [drillPlanId, loadDrillHole, unloadDrillHole]);
+
+
+	// Mark focused tab initialized once; data remains in master store until form closes
+	useEffect(() => {
+		if (!tabInitialized[activeTab]) {
+			console.log("[DrillHoleDataLayout] 📌 First focus for tab, marking initialized", { activeTab });
+			markTabInitialized(activeTab);
+		}
+	}, [activeTab, tabInitialized, markTabInitialized]);
 
 	// ========================================================================
 	// Loading States

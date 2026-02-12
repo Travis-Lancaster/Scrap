@@ -7,7 +7,7 @@
  * @module drill-hole-data/store
  */
 
-import { AllSamples, CollarCoordinate, DrillHoleDataAggregate, GeologyCombinedLog, RigSetup, RowMetadata, RowVersionMap, ShearLog, StructureLog } from "../types/data-contracts";
+import { AllSamples, CollarCoordinate, CoreRecoveryRunLog, DrillHoleDataAggregate, FractureCountLog, GeologyCombinedLog, LabDispatch, MagSusLog, RigSetup, RockMechanicLog, RockQualityDesignationLog, RowMetadata, RowVersionMap, ShearLog, SpecificGravityPtLog, StructureLog } from "../types/data-contracts";
 
 // import type {
 // 	DrillHoleDataAggregate,
@@ -24,6 +24,20 @@ import { AllSamples, CollarCoordinate, DrillHoleDataAggregate, GeologyCombinedLo
 // } from "#src/api/database/data-contracts";
 // import { AllSamples } from "#src/data-layer/types/simplified-types.js";
 import { createRowMetadata } from "./section-factory";
+
+function mapDepthSortedArray<T extends { DepthFrom?: number }>(rows: T[] | null | undefined): T[] {
+	if (!rows || !Array.isArray(rows) || rows.length === 0) return [];
+	return [...rows].sort((a, b) => (a.DepthFrom || 0) - (b.DepthFrom || 0));
+}
+
+function mapGenericArraySection<T extends { rv?: string; RowStatus?: number }>(rows: T[] | null | undefined, idField: keyof T) {
+	const mappedRows = mapDepthSortedArray(rows);
+	return {
+		data: mappedRows,
+		metadata: extractRowMetadataFromApi(mappedRows, idField),
+		versions: extractRowVersionsFromApi(mappedRows, idField),
+	};
+}
 
 /**
  * Map RigSetup from API to store format
@@ -226,6 +240,14 @@ export function mapDrillHoleAggregateToStore(aggregate: DrillHoleDataAggregate) 
 		versions: extractRowVersionsFromApi(aggregate.allSamples, "SampleId"),
 	};
 
+	const mappedCoreRecoveryRunLog = mapGenericArraySection<CoreRecoveryRunLog>(aggregate.coreRecoveryRunLog, "CoreRecoveryRunLogId");
+	const mappedFractureCountLog = mapGenericArraySection<FractureCountLog>(aggregate.fractureCountLog, "FractureCountLogId");
+	const mappedMagSusLog = mapGenericArraySection<MagSusLog>(aggregate.magSusLog, "MagSusLogId");
+	const mappedRockMechanicLog = mapGenericArraySection<RockMechanicLog>(aggregate.rockMechanicLog, "RockMechanicLogId");
+	const mappedRockQualityDesignationLog = mapGenericArraySection<RockQualityDesignationLog>(aggregate.rockQualityDesignationLog, "RockQualityDesignationLogId");
+	const mappedSpecificGravityPtLog = mapGenericArraySection<SpecificGravityPtLog>(aggregate.specificGravityPtLog, "SpecificGravityPtLogId");
+	const mappedDispatch: LabDispatch | null = aggregate.labDispatch?.[0] || null;
+
 	const result = {
 		// Single-object sections
 		rigSetup: mappedRigSetup,
@@ -236,6 +258,13 @@ export function mapDrillHoleAggregateToStore(aggregate: DrillHoleDataAggregate) 
 		shearLog: mappedShearLog,
 		structureLog: mappedStructureLog,
 		allSamples: mappedAllSamples,
+		coreRecoveryRunLog: mappedCoreRecoveryRunLog,
+		fractureCountLog: mappedFractureCountLog,
+		magSusLog: mappedMagSusLog,
+		rockMechanicLog: mappedRockMechanicLog,
+		rockQualityDesignationLog: mappedRockQualityDesignationLog,
+		specificGravityPtLog: mappedSpecificGravityPtLog,
+		dispatch: mappedDispatch,
 
 		// Core data
 		vwCollar: aggregate.vwCollar,
