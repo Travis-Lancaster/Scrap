@@ -23,7 +23,6 @@ export const SetupView: React.FC = () => {
 	// ========================================================================
 
 	const activeLens = useDrillHoleDataStore(state => state.activeLens["Setup"]);
-		const currentLens = activeLens || "RigSheet";
 	const drillPlanId = useDrillHoleDataStore(state => state.drillPlanId);
 	const currentLens = activeLens || "RigSheet";
 
@@ -68,10 +67,7 @@ export const SetupView: React.FC = () => {
 	return (
 		<div className="flex flex-col h-full">
 			<div className="flex-1 overflow-auto p-6 bg-slate-50">
-				{currentLens === "RigSheet" && <RigSetupForm />}
-				{/* {currentLens === "RigSetup" && <RigSetupForm />} */}
 				{currentLens === "RigSheet" && <RigSetupFormView drillPlanId={drillPlanId || ""} />}
-
 				{currentLens === "Coordinate" && <CollarCoordinateForm />}
 			</div>
 
