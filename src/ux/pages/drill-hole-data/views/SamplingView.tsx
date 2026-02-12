@@ -35,6 +35,8 @@ export const SamplingView: React.FC = () => {
 	const closeDrawer = useDrillHoleDataStore(state => state.closeDrawer);
 
 	const currentLens = activeLens || "Sample";
+	const viewUIState = useDrillHoleDataStore(state => state.getViewUIState("Sampling", currentLens));
+
 
 <<<<<<< HEAD
 	const renderContent = () => {
@@ -58,6 +60,7 @@ export const SamplingView: React.FC = () => {
 
 	console.log("[SamplingView] Rendering", {
 		currentLens,
+		uiContext: viewUIState,
 		sectionKey: currentSectionKey,
 		isDirty: section?.isDirty,
 		drawerOpen: isDrawerOpen,

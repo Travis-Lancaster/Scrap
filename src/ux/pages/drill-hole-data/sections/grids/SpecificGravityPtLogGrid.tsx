@@ -20,7 +20,9 @@ export const SpecificGravityPtLogGrid: React.FC = () => {
 		rowMetadata,
 		handleCellValueChanged,
 		handleEditRow,
-	} = useGeotechGridOperations(SectionKey.SpecificGravityPtLog, "SpecificGravityPtLogId");
+		uiState,
+		updateUIState,
+	} = useGeotechGridOperations(SectionKey.SpecificGravityPtLog, "SpecificGravityPtLogId", "SpecificGravityPt");
 
 	console.log("[SpecificGravityPtLogGrid] 📊 Rendering grid", {
 		rowCount: rows.length,
@@ -48,6 +50,9 @@ export const SpecificGravityPtLogGrid: React.FC = () => {
 				sortColumn="DepthFrom"
 				readOnly={isReadOnly}
 				getRowClass={getRowClass}
+				rowIdField="SpecificGravityPtLogId"
+				uiState={uiState}
+				onUIStateChange={updateUIState}
 			/>
 		</div>
 	);

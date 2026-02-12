@@ -14,6 +14,10 @@ import { useDrillHoleDataStore } from "../store";
 export const GeotechView: React.FC = () => {
 	const activeLens = useDrillHoleDataStore(state => state.activeLens["Geotech"]);
 	const currentLens = activeLens || "CoreRecoveryRun";
+	const viewUIState = useDrillHoleDataStore(state => state.getViewUIState("Geotech", currentLens));
+
+	console.log("[GeotechView] Rendering", { currentLens, uiContext: viewUIState });
+
 
 	const renderGrid = () => {
 		switch (currentLens) {

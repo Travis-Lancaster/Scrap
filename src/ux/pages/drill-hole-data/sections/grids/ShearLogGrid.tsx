@@ -12,6 +12,7 @@ import { SectionKey, ShearLog } from "../../types/data-contracts";
 import { DataGrid } from "../../components/DataGrid";
 import { shearLogColumns } from "../../column-defs/shearLogColumns";
 import { useDrillHoleDataStore } from "../../store";
+import { useGridUIContext } from "../../hooks";
 
 export const ShearLogGrid: React.FC = () => {
 	// ========================================================================
@@ -21,6 +22,7 @@ export const ShearLogGrid: React.FC = () => {
 	const section = useDrillHoleDataStore(state => state.sections.shearLog);
 	const openDrawer = useDrillHoleDataStore(state => state.openDrawer);
 	const canEdit = useDrillHoleDataStore(state => state.canEdit(SectionKey.ShearLog));
+	const { uiState, updateUIState } = useGridUIContext("Geology", "Shear");
 
 	const rows = section.data || [];
 	const rowMetadata = section.rowMetadata || {};
@@ -77,6 +79,9 @@ export const ShearLogGrid: React.FC = () => {
 				sortColumn="DepthFrom"
 				readOnly={!canEdit}
 				getRowClass={getRowClass}
+				rowIdField="ShearLogId"
+				uiState={uiState}
+				onUIStateChange={updateUIState}
 			/>
 		</div>
 	);

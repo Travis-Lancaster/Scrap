@@ -20,7 +20,9 @@ export const CoreRecoveryRunLogGrid: React.FC = () => {
 		rowMetadata,
 		handleCellValueChanged,
 		handleEditRow,
-	} = useGeotechGridOperations(SectionKey.CoreRecoveryRunLog, "CoreRecoveryRunLogId");
+		uiState,
+		updateUIState,
+	} = useGeotechGridOperations(SectionKey.CoreRecoveryRunLog, "CoreRecoveryRunLogId", "CoreRecoveryRun");
 
 	console.log("[CoreRecoveryRunLogGrid] 📊 Rendering grid", {
 		rowCount: rows.length,
@@ -48,6 +50,9 @@ export const CoreRecoveryRunLogGrid: React.FC = () => {
 				sortColumn="DepthFrom"
 				readOnly={isReadOnly}
 				getRowClass={getRowClass}
+				rowIdField="CoreRecoveryRunLogId"
+				uiState={uiState}
+				onUIStateChange={updateUIState}
 			/>
 		</div>
 	);

@@ -21,7 +21,9 @@ export const AllSamplesGrid: React.FC = () => {
 		rowMetadata,
 		handleCellValueChanged,
 		handleEditSample,
-	} = useSampleOperations();
+		uiState,
+		updateUIState,
+	} = useSampleOperations("Sample");
 
 	console.log("[AllSamplesGrid] 📊 Rendering grid", {
 		sampleCount: samples.length,
@@ -49,6 +51,9 @@ export const AllSamplesGrid: React.FC = () => {
 				sortColumn="DepthFrom"
 				readOnly={isReadOnly}
 				getRowClass={getRowClass}
+				rowIdField="SampleId"
+				uiState={uiState}
+				onUIStateChange={updateUIState}
 			/>
 		</div>
 	);

@@ -26,6 +26,32 @@ import { createAllSections } from "./section-factory";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
+export interface DrillHoleDataUIState {
+	currentPage: number;
+	pageSize: number;
+	searchQuery: string;
+	filters: Record<string, any>;
+	sortBy: string | null;
+	sortOrder: "asc" | "desc" | null;
+	selectedRows: string[];
+	columnVisibility: Record<string, boolean>;
+	columnWidths: Record<string, number>;
+}
+
+const createDefaultUIState = (): DrillHoleDataUIState => ({
+	currentPage: 1,
+	pageSize: 100,
+	searchQuery: "",
+	filters: {},
+	sortBy: null,
+	sortOrder: null,
+	selectedRows: [],
+	columnVisibility: {},
+	columnWidths: {},
+});
+
+export const buildUIContextKey = (tab: TabKey, lens?: string): string => `${tab}:${lens || ""}`;
+
 /**
  * Drill-Hole-Data Store State
  */
@@ -74,6 +100,7 @@ export interface DrillHoleDataState {
 	 */
 	activeLens: Record<string, string>;
 	tabInitialized: Record<TabKey, boolean>;
+	uiByContext: Record<string, DrillHoleDataUIState>;
 
 	/**
 	 * Drawer state
@@ -95,6 +122,11 @@ export interface DrillHoleDataState {
 	setActiveTab: (tab: TabKey) => void;
 	setActiveLens: (tab: string, lens: string) => void;
 	markTabInitialized: (tab: TabKey) => void;
+	setUIState: (contextKey: string, partial: Partial<DrillHoleDataUIState>) => void;
+	resetUIState: (contextKey: string) => void;
+	getUIState: (contextKey: string) => DrillHoleDataUIState;
+	getViewContextKey: (tab: TabKey, lens?: string) => string;
+	getViewUIState: (tab: TabKey, lens?: string) => DrillHoleDataUIState;
 
 	// ========================================================================
 	// Actions - Drawer
@@ -197,6 +229,7 @@ export const useDrillHoleDataStore = create<DrillHoleDataState>()(
 				SignOff: false,
 				Summary: false,
 			},
+			uiByContext: {},
 
 			isDrawerOpen: false,
 			selectedRow: null,
@@ -245,6 +278,35 @@ export const useDrillHoleDataStore = create<DrillHoleDataState>()(
 						state.tabInitialized[tab] = true;
 					}
 				});
+			},
+
+			setUIState: (contextKey, partial) => {
+				set((state) => {
+					state.uiByContext[contextKey] = {
+						...(state.uiByContext[contextKey] || createDefaultUIState()),
+						...partial,
+					};
+				});
+			},
+
+			resetUIState: (contextKey) => {
+				set((state) => {
+					state.uiByContext[contextKey] = createDefaultUIState();
+				});
+			},
+
+			getUIState: (contextKey) => {
+				return get().uiByContext[contextKey] || createDefaultUIState();
+			},
+
+			getViewContextKey: (tab: TabKey, lens?: string) => {
+				const resolvedLens = lens ?? get().activeLens[tab] ?? TAB_DEFAULT_LENS[tab] ?? "";
+				return buildUIContextKey(tab, resolvedLens);
+			},
+
+			getViewUIState: (tab: TabKey, lens?: string) => {
+				const contextKey = get().getViewContextKey(tab, lens);
+				return get().uiByContext[contextKey] || createDefaultUIState();
 			},
 
 			// ================================================================

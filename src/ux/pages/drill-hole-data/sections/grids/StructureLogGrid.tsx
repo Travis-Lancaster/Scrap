@@ -13,6 +13,7 @@ import { SectionKey, StructureLog } from "../../types/data-contracts";
 import { DataGrid } from "../../components/DataGrid";
 import { structureLogColumns } from "../../column-defs/structureLogColumns";
 import { useDrillHoleDataStore } from "../../store";
+import { useGridUIContext } from "../../hooks";
 
 // import { SectionKey } from "../../types/data-contracts";
 
@@ -24,6 +25,7 @@ export const StructureLogGrid: React.FC = () => {
 	const section = useDrillHoleDataStore(state => state.sections.structureLog);
 	const openDrawer = useDrillHoleDataStore(state => state.openDrawer);
 	const canEdit = useDrillHoleDataStore(state => state.canEdit(SectionKey.StructureLog));
+	const { uiState, updateUIState } = useGridUIContext("Geology", "Structure");
 
 	const rows = section.data || [];
 	const rowMetadata = section.rowMetadata || {};
@@ -80,6 +82,9 @@ export const StructureLogGrid: React.FC = () => {
 				sortColumn="DepthFrom"
 				readOnly={!canEdit}
 				getRowClass={getRowClass}
+				rowIdField="StructureLogId"
+				uiState={uiState}
+				onUIStateChange={updateUIState}
 			/>
 		</div>
 	);

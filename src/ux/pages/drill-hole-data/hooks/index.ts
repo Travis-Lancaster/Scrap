@@ -17,3 +17,5 @@ export { useSampleOperations } from "./useSampleOperations";
 
 // Generic section actions hook
 export { useSectionActions } from "./useSectionActions";
+
+export { useGridUIContext } from "./useGridUIContext";

@@ -20,7 +20,9 @@ export const MagSusLogGrid: React.FC = () => {
 		rowMetadata,
 		handleCellValueChanged,
 		handleEditRow,
-	} = useGeotechGridOperations(SectionKey.MagSusLog, "MagSusLogId");
+		uiState,
+		updateUIState,
+	} = useGeotechGridOperations(SectionKey.MagSusLog, "MagSusLogId", "MagSus");
 
 	console.log("[MagSusLogGrid] 📊 Rendering grid", {
 		rowCount: rows.length,
@@ -48,6 +50,9 @@ export const MagSusLogGrid: React.FC = () => {
 				sortColumn="DepthFrom"
 				readOnly={isReadOnly}
 				getRowClass={getRowClass}
+				rowIdField="MagSusLogId"
+				uiState={uiState}
+				onUIStateChange={updateUIState}
 			/>
 		</div>
 	);
