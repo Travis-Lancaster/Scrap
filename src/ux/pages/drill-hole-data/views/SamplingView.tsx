@@ -21,10 +21,6 @@ import { useDrillHoleDataStore } from "../store";
 import { useSectionActions } from "../hooks";
 
 export const SamplingView: React.FC = () => {
-	// ========================================================================
-	// Store Selectors
-	// ========================================================================
-
 	const activeLens = useDrillHoleDataStore(state => state.activeLens["Sampling"]);
 	const isDrawerOpen = useDrillHoleDataStore(state => state.isDrawerOpen);
 	const selectedRow = useDrillHoleDataStore(state => state.selectedRow);
